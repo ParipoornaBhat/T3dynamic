@@ -5,6 +5,8 @@ import { Button } from "@/app/_components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/_components/ui/card";
 import { motion } from "framer-motion";
 import type { Session } from "next-auth"; // or whatever your session type is
+import { useTheme } from "next-themes";
+import { useEffect } from "react";
 
 
 export default function HomePage({ session }: { session: Session | null }) {
@@ -48,9 +50,16 @@ export default function HomePage({ session }: { session: Session | null }) {
       },
     },
   };
+    const { theme, resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    console.log("Theme:", theme); // e.g. 'light' | 'dark' | 'system'
+    console.log("Resolved theme:", resolvedTheme); // e.g. 'light' | 'dark'
+  }, [theme, resolvedTheme]);
+
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-teal-50 via-purple-50 to-orange-50 dark:from-teal-900 dark:via-purple-900 dark:to-orange-900">
+       <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-teal-50 via-purple-50 to-orange-50 dark:from-teal-900 dark:via-purple-900 dark:to-orange-900">
       <motion.div
         className="flex flex-col items-center justify-center px-4 py-12 md:py-24 lg:py-32"
         variants={containerVariants}
