@@ -1,56 +1,116 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
-
+import Credentials from "next-auth/providers/credentials";
 import { db } from "@/server/db";
+import bcrypt from "bcryptjs";
+import { signInSchema } from "@/lib/zod";
 
-/**
- * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
- * object and keep type safety.
- *
- * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
- */
+// --- Type augmentation ---
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      role: string;
+      permissions: string[]; // Array of permission names
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    role: string;
+    permissions: string[];
+  }
 }
 
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
-export const authConfig = {
+export const authConfig: NextAuthConfig = {
+  adapter: PrismaAdapter(db) as any,
   providers: [
-    DiscordProvider,
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
-  ],
-  adapter: PrismaAdapter(db),
-  callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
+    Credentials({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "user@example.com" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const { email, password } = credentials as { email: string; password: string };
+        if (!email || !password) return null;
+
+        const parsed = signInSchema.safeParse(credentials);
+        if (!parsed.success) return null;
+
+        const user = await db.user.findUnique({
+          where: { email },
+          include: {
+            role: {
+              include: {
+                permissions: { // Correct relation to permissions via RolePermission
+                  include: {
+                    permission: true, // Fetch associated permissions
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        if (!user || !user.password) return null;
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) return null;
+
+        const permissions = user.role?.permissions.map((rp) => rp.permission.name) ?? [];
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role?.name ?? "CUSTOMER",
+          permissions, // Include permissions in the return object
+        };
       },
     }),
+  ],
+  callbacks: {
+  async jwt({ token, user }) {
+    if (user) {
+      // Initial login
+      const dbUser = await db.user.findUnique({
+        where: { id: user.id },
+        include: {
+          role: {
+            include: {
+              permissions: {
+                include: { permission: true },
+              },
+            },
+          },
+        },
+      });
+
+      token.id = dbUser?.id;
+      token.role = dbUser?.role?.name ?? "CUSTOMER";
+      token.permissions = dbUser?.role?.permissions.map(rp => rp.permission.name) ?? [];
+    }
+    return token;
   },
-} satisfies NextAuthConfig;
+
+  async session({ session, token }) {
+    if (token && session.user) {
+      session.user.id = token.id as string;
+      session.user.role = token.role as string;
+      session.user.permissions = token.permissions as string[];
+    }
+    return session;
+  },
+}
+,
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 60 * 60, // 1 day
+  },
+  pages: {
+    signIn: "/auth/signin",
+    signOut: "/auth/signout",
+    error: "/auth/error",
+    newUser: "/auth/welcome", // Display this page if it's the first time the user logs in
+  },
+};

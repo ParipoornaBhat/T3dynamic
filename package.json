@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
@@ -22,24 +25,34 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
-    "@prisma/client": "^6.5.0",
+    "@prisma/client": "^6.8.2",
     "@t3-oss/env-nextjs": "^0.12.0",
     "@tanstack/react-query": "^5.69.0",
     "@trpc/client": "^11.0.0",
     "@trpc/react-query": "^11.0.0",
     "@trpc/server": "^11.0.0",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "class-variance-authority": "^0.7.1",
+    "framer-motion": "^12.15.0",
+    "lucide-react": "^0.511.0",
     "next": "^15.2.3",
     "next-auth": "5.0.0-beta.25",
+    "next-themes": "^0.4.6",
+    "radix-ui": "^1.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4.0.15",
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.17.57",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.23.0",
@@ -49,7 +62,9 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "prisma": "^6.5.0",
     "tailwindcss": "^4.0.15",
-    "typescript": "^5.8.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.27.0"
   },
   "ct3aMetadata": {
