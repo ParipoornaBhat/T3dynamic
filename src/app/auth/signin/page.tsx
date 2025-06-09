@@ -114,7 +114,8 @@ const { theme, resolvedTheme } = useTheme();
     setIsDark(theme === 'dark' || resolvedTheme === 'dark');
   }, [theme, resolvedTheme]);
 
-  const logoSrc = isDark ? "/t_dark.png" : "/t_light.png";  return (
+  const logoSrc = isDark ? "/t_dark.png" : "/t_light.png";  
+  return (
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-teal-100 via-purple-100 to-orange-100 dark:from-teal-950 dark:via-purple-900 dark:to-orange-1000 flex items-center justify-center px-4">
        <motion.div
         initial="hidden"

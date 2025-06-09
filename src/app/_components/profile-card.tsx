@@ -34,8 +34,16 @@ export function ProfileCard() {
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-full max-w-md">
-      <Card className="mx-auto bg-gradient-to-br from-white to-teal-50 dark:from-gray-900 dark:to-teal-900 shadow-xl border-0">
+   
+   
+  <motion.div
+    variants={containerVariants}
+    initial="hidden"
+    animate="visible"
+    className="w-full h-screen sm:h-[90vh] md:h-[80vh] max-w-md mt-8 sm:mt-12 lg:mt-20 px-4 sm:px-6 lg:px-8"
+  >
+
+        <Card className="bg-gradient-to-br from-teal-100 via-purple-100 to-orange-100 dark:from-teal-950 dark:via-purple-900 dark:to-orange-1000 shadow-xl border border-white/10 dark:border-white/10 backdrop-blur-md">
         <CardHeader className="flex flex-col items-center gap-4 pb-6">
           <motion.div className="relative" whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
             <Avatar className="h-24 w-24 ring-4 ring-gradient-to-r ring-teal-500 ring-offset-2">
@@ -137,5 +145,6 @@ export function ProfileCard() {
         </CardFooter>
       </Card>
     </motion.div>
+    
   )
 }
