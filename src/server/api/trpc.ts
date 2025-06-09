@@ -124,6 +124,7 @@ export const protectedProcedure = t.procedure
     if (!ctx.session?.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
+
     return next({
       ctx: {
         // infers the `session` as non-nullable
@@ -131,3 +132,6 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+
+  

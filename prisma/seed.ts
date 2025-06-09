@@ -47,77 +47,101 @@ const main = async () => {
       create: { name: 'EDIT_PERMISSION' },
     });
 
-    // Create Roles with deptName and RolePermissions
     const adminRole = await db.role.upsert({
-      where: { name: 'ADMIN' },
-      update: {},
-      create: {
-        name: 'ADMIN',
-        deptName: 'ADM',
-        permissions: {
-          create: [
-            { permissionName: 'EDIT_ROLE' },
-            { permissionName: 'EDIT_PERMISSION' },
-          ],
-        },
-      },
-    });
+  where: {
+    name_deptId: {
+      name: 'ADMIN',
+      deptId: admDept.id,
+    },
+  },
+  update: {},
+  create: {
+    name: 'ADMIN',
+    deptId: admDept.id,
+  },
+});
+const developerRole = await db.role.upsert({
+  where: {
+    name_deptId: {
+      name: 'DEVELOPER',
+      deptId: devDept.id,
+    },
+  },
+  update: {},
+  create: {
+    name: 'DEVELOPER',
+    deptId: devDept.id,
+  },
+});
 
-    const developerRole = await db.role.upsert({
-      where: { name: 'DEVELOPER' },
-      update: {},
-      create: {
-        name: 'DEVELOPER',
-        deptName: 'DEV',
-        permissions: {
-          create: [{ permissionName: 'EDIT_ROLE' }],
-        },
-      },
-    });
+const customerRole = await db.role.upsert({
+  where: {
+    name_deptId: {
+      name: 'CUSTOMER',
+      deptId: cstDept.id,
+    },
+  },
+  update: {},
+  create: {
+    name: 'CUSTOMER',
+    deptId: cstDept.id,
+  },
+});
 
-    const customerRole = await db.role.upsert({
-      where: { name: 'CUSTOMER' },
-      update: {},
-      create: {
-        name: 'CUSTOMER',
-        deptName: 'CST',
-        permissions: { create: [] },
-      },
+    // Assign RolePermissions
+    await db.rolePermission.createMany({
+      data: [
+        {
+          roleId: developerRole.id,
+          permissionId: editRole.id,
+        },
+        {
+          roleId: developerRole.id,
+          permissionId: editPermission.id,
+        },
+        {
+          roleId: adminRole.id,
+          permissionId: editRole.id,
+        },
+      ],
+      skipDuplicates: true,
     });
 
     // Create Users
-    const adminUser = await db.user.upsert({
-      where: { email: 'admin@example.com' },
-      update: {},
-      create: {
+    const users = [
+      {
         email: 'admin@example.com',
-        name: 'Admin User',
+        fname: 'Admin',
+        lname: 'User',
+        phone: '1000000000',
         password: await bcrypt.hash('456456', saltRounds),
-        roleName: 'ADMIN',
+        roleId: adminRole.id,
       },
-    });
-
-    const developerUser = await db.user.upsert({
-      where: { email: 'dev@example.com' },
-      update: {},
-      create: {
+      {
         email: 'dev@example.com',
-        name: 'Developer User',
+        fname: 'Developer',
+        lname: 'User',
+        phone: '1000000001',
         password: await bcrypt.hash('456456', saltRounds),
-        roleName: 'DEVELOPER',
+        roleId: developerRole.id,
       },
-    });
-
-    const customerUser = await db.user.upsert({
-      where: { email: 'customer@example.com' },
-      update: {},
-      create: {
+      {
         email: 'customer@example.com',
-        name: 'Customer User',
+        fname: 'Customer',
+        lname: 'User',
+        phone: '1000000002',
         password: await bcrypt.hash('456456', saltRounds),
-        roleName: 'CUSTOMER',
+        roleId: customerRole.id,
       },
-    });
+    ];
+
+    for (const user of users) {
+      await db.user.upsert({
+        where: { email: user.email },
+        update: {},
+        create: user,
+      });
+    }
 
     console.log('✅ Seed data successfully created!');
   } catch (error) {
@@ -129,4 +153,3 @@ const main = async () => {
 };
 
 main();
-// This script seeds the database with initial data for departments, permissions, roles, and users.

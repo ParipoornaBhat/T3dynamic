@@ -24,7 +24,7 @@ declare module "next-auth" {
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(db) as any,
   providers: [
-    Credentials({
+     Credentials({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "user@example.com" },
@@ -61,7 +61,7 @@ export const authConfig: NextAuthConfig = {
 
         return {
           id: user.id,
-          name: user.name,
+          name: user.fname + " " + user.lname,
           email: user.email,
           role: user.role?.name ?? "CUSTOMER",
           permissions, // Include permissions in the return object
@@ -70,39 +70,46 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-  async jwt({ token, user }) {
-    if (user) {
-      // Initial login
+    session: async ({ session, user }) =>{
+      if (!user || !session.user) return session;
+
+      // Fetch role and permissions from DB for the session user
       const dbUser = await db.user.findUnique({
         where: { id: user.id },
         include: {
           role: {
             include: {
-              permissions: {
-                include: { permission: true },
+              permissions: { // Correct relation to permissions via RolePermission
+                include: {
+                  permission: true, // Fetch associated permissions
+                },
               },
             },
           },
         },
       });
 
-      token.id = dbUser?.id;
-      token.role = dbUser?.role?.name ?? "CUSTOMER";
-      token.permissions = dbUser?.role?.permissions.map(rp => rp.permission.name) ?? [];
-    }
-    return token;
-  },
+      // Extract permissions from the rolePermissions relation for the session user
+      const permissions = dbUser?.role?.permissions.map(
+        (rp) => rp.permission.name
+      ) ?? [];
 
-  async session({ session, token }) {
-    if (token && session.user) {
-      session.user.id = token.id as string;
-      session.user.role = token.role as string;
-      session.user.permissions = token.permissions as string[];
-    }
-    return session;
+      // Attach the role and permissions to the session object
+      session.user.id = user.id;
+      session.user.role = dbUser?.role?.name ?? "CUSTOMER";
+      session.user.permissions = permissions;
+
+      return session;
+    },
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.permissions = user.permissions;
+      }
+      return token;
+    },
   },
-}
-,
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 1 day

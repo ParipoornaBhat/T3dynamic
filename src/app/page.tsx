@@ -6,8 +6,8 @@ export default async function Home() {
   const session = await auth(); // Fetch session information
 
   return (
-    <HydrateClient>
+   
       <HomePage session={session} />
-    </HydrateClient>
+  
   );
 }
