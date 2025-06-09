@@ -2,6 +2,9 @@ import { userRouter } from "@/server/api/routers/user";
 import { roleRouter } from "@/server/api/routers/roles";
 import { permRouter } from "@/server/api/routers/perm";
 import { deptRouter } from "@/server/api/routers/dept";
+
+import { newRoutes } from "@/server/api/routers/newroutes";
+
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
