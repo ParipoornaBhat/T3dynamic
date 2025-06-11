@@ -2,9 +2,12 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
+import { permissionMiddleware } from "@/server/api/middleware/permissions";
 
 export const roleRouter = createTRPCRouter({
- getAll: protectedProcedure.query(async ({ ctx }) => {
+ getAll: protectedProcedure
+  .use(permissionMiddleware)
+ .query(async ({ ctx }) => {
 
   return ctx.db.role.findMany({
   include: {
@@ -39,6 +42,7 @@ export const roleRouter = createTRPCRouter({
       deptId: z.string(),
     })
   )
+  .use(permissionMiddleware)
   .mutation(async ({ ctx, input }) => {
     const existing = await ctx.db.role.findUnique({
       where: {
@@ -76,7 +80,7 @@ export const roleRouter = createTRPCRouter({
     z.object({
       id: z.string(), // Delete by id
     })
-  )
+  ).use(permissionMiddleware)
   .mutation(async ({ ctx, input }) => {
     try {
       const delRole = await ctx.db.role.delete({
@@ -108,6 +112,7 @@ export const roleRouter = createTRPCRouter({
       permissionId: z.string(),
     })
   )
+  .use(permissionMiddleware)
   .mutation(async ({ input, ctx }) => {
     try {
       const { roleId, permissionId } = input;

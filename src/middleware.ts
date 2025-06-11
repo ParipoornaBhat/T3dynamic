@@ -1,47 +1,87 @@
 import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { env } from "./env";
 
+// Utility to check permissions
+const hasPermissions = (token: any, requiredPermissions: string[]) => {
+  if (!token?.permissions || !Array.isArray(token.permissions)) return false;
+  return requiredPermissions.some((perm) => token.permissions.includes(perm));
+};
+
+
+// Utility to set flash error in cookie
+const setFlashError = (response: NextResponse, message: string) => {
+  response.cookies.set("flash_error", message, {
+    maxAge: 5, // 5 seconds
+    path: "/",
+    httpOnly: false,
+  });
+
+};
+
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
   const token = await getToken({ req: request, secret: env.AUTH_SECRET });
-if (!token){
-    if (request.nextUrl.pathname.startsWith("/dashboard")) {
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
-    }
-    if (request.nextUrl.pathname === "/") {
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
-    }
-    return NextResponse.next();
-}
-  if (request.nextUrl.pathname === "/signin") {
+
+  // Public routes
+  const publicPaths = ["/", "/home", "/about", "/forgotpassword"];
+  if (publicPaths.includes(pathname)) return NextResponse.next();
+
+  // Redirect /auth to /auth/signin
+  if (pathname === "/auth") {
     return NextResponse.redirect(new URL("/auth/signin", request.url));
   }
-  if (request.nextUrl.pathname === "/dashboard") {
-    console.log(token);
-    if (token) {
-      if (token.role === "OWNER") {
-        return NextResponse.redirect(new URL("/dashboard/owner", request.url));
-      } else if (token.role === "EMPLOYEE") {
-        return NextResponse.redirect(
-          new URL("/dashboard/employee", request.url),
-        );
+
+  // Prevent logged-in users from accessing /auth/signin
+  if (pathname === "/auth/signin" && token) {
+    const res = NextResponse.redirect(new URL("/", request.url));
+    setFlashError(res, "You are already logged in.");
+    return res;
+  }
+
+  // Allow access to /auth/* if not logged in
+  if (pathname.startsWith("/auth") && !token) return NextResponse.next();
+
+  // /dashboard access - block CUSTOMERS
+  if (pathname.startsWith("/dashboard")) {
+    if (!token || token.role === "CUSTOMER") {
+      const res = NextResponse.redirect(new URL("/auth/signin", request.url));
+      setFlashError(res, "You must be an employee to access the dashboard.");
+      return res;
+    }
+
+    // Permissions for /dashboard/settings
+    if (pathname === "/dashboard/settings") {
+      const required = ["MANAGE_ROLE", "MANAGE_PERMISSION"];
+      if (!hasPermissions(token, required)) {
+        const res = NextResponse.redirect(new URL("/dashboard", request.url));
+        setFlashError(res, "You don't have permission to access Settings.");
+        return res;
+      }
+    }
+
+    // Permissions for /dashboard/alluser
+    if (pathname === "/dashboard/alluser") {
+      const required = ["MANAGE_CUSTOMER", "MANAGE_EMPLOYEE"];
+      if (!hasPermissions(token, required)) {
+        const res = NextResponse.redirect(new URL("/dashboard", request.url));
+        setFlashError(res, "You don't have permission to view all users.");
+        return res;
       }
     }
   }
-  if (request.nextUrl.pathname === "/dashboard/owner") {
-    if (!token || token.role !== "OWNER") {
-      return NextResponse.redirect(new URL("/signin", request.url));
-    }
-  }
-  if (request.nextUrl.pathname === "/dashboard/employee") {
-    if (!token || token.role !== "EMPLOYEE") {
-      return NextResponse.redirect(new URL("/signin", request.url));
-    }
-  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/signin", "/dashboard"],
+  matcher: [
+    "/",
+    "/home",
+    "/about",
+    "/forgotpassword",
+    "/auth/:path*",
+    "/dashboard/:path*",
+  ],
 };

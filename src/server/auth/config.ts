@@ -21,10 +21,11 @@ declare module "next-auth" {
   }
 }
 
+
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(db) as any,
   providers: [
-     Credentials({
+    Credentials({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "user@example.com" },
@@ -40,11 +41,13 @@ export const authConfig: NextAuthConfig = {
         const user = await db.user.findUnique({
           where: { email },
           include: {
-            role: {
+            employee: {
               include: {
-                permissions: { // Correct relation to permissions via RolePermission
+                role: {
                   include: {
-                    permission: true, // Fetch associated permissions
+                    permissions: {
+                      include: { permission: true },
+                    },
                   },
                 },
               },
@@ -57,47 +60,28 @@ export const authConfig: NextAuthConfig = {
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) return null;
 
-        const permissions = user.role?.permissions.map((rp) => rp.permission.name) ?? [];
+        // Extract role and permissions if employee
+        const role = user.employee?.role?.name ?? "CUSTOMER";
+        const permissions =
+          user.employee?.role?.permissions.map((rp) => rp.permission.name) ?? [];
 
         return {
           id: user.id,
-          name: user.fname + " " + user.lname,
+          name: user.name,
           email: user.email,
-          role: user.role?.name ?? "CUSTOMER",
-          permissions, // Include permissions in the return object
+          role,
+          permissions,
         };
       },
     }),
   ],
   callbacks: {
-    session: async ({ session, user }) =>{
-      if (!user || !session.user) return session;
+    session: async ({ session, token }) => {
+      if (!token || !session.user) return session;
 
-      // Fetch role and permissions from DB for the session user
-      const dbUser = await db.user.findUnique({
-        where: { id: user.id },
-        include: {
-          role: {
-            include: {
-              permissions: { // Correct relation to permissions via RolePermission
-                include: {
-                  permission: true, // Fetch associated permissions
-                },
-              },
-            },
-          },
-        },
-      });
-
-      // Extract permissions from the rolePermissions relation for the session user
-      const permissions = dbUser?.role?.permissions.map(
-        (rp) => rp.permission.name
-      ) ?? [];
-
-      // Attach the role and permissions to the session object
-      session.user.id = user.id;
-      session.user.role = dbUser?.role?.name ?? "CUSTOMER";
-      session.user.permissions = permissions;
+      session.user.id = token.id as string;
+      session.user.role = token.role as string;
+      session.user.permissions = token.permissions as string[];
 
       return session;
     },
@@ -118,6 +102,7 @@ export const authConfig: NextAuthConfig = {
     signIn: "/auth/signin",
     signOut: "/auth/signout",
     error: "/auth/error",
-    newUser: "/auth/welcome", // Display this page if it's the first time the user logs in
+    newUser: "/auth/welcome",
   },
 };
+

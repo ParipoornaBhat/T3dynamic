@@ -8,6 +8,7 @@ import { WhatsAppButton } from "@/app/_components/whatsapp-button";
 import { TRPCReactProvider } from "@/trpc/react";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "sonner";
+import { FlashToast } from "@/app/_components/Flash-error";
 export default function RootLayout({
   children,
   session, // Receiving session prop
@@ -26,6 +27,7 @@ export default function RootLayout({
           <SessionProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <div className="flex min-h-screen flex-col">
+              
               <Navbar /> {/* Passing session to Navbar */}
               <main className="flex-1">{children}</main>
               <WhatsAppButton />
@@ -42,6 +44,7 @@ export default function RootLayout({
               },
             }}
           />
+          <FlashToast />
               <Footer />
             </div>
           </ThemeProvider>

@@ -1,103 +1,346 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma Schema for Job Management System
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// Necessary for Next auth
-model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
 
-    @@unique([provider, providerAccountId])
+
+// ===================
+// MODELS
+// ===================
+
+model Account {
+  id                       String   @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  refresh_token_expires_in Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  message   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+model Customer {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+
+  companyBilling String[]   @default([])
+  brands         String[]   @default([])
+  addresses      String[]   @default([])
+
+  totalItemsBOPP Int @default(0)
+  totalItemsPET  Int @default(0)
+
+  BOPPItems      BOPPItem[] @relation("UserBOPPItems")
+  PETItems       PETItem[]  @relation("UserPETItems")
+  BOPPOrders     BOPPOrder[]  @relation("UserBOPPOrders")
+  PETOrders      PETOrder[] @relation("UserPETOrders")
+  completedBOPPOrders CompletedBOPPOrder[]  @relation("UserCompletedBOPPOrders")
+  completedPETOrders  CompletedPETOrder[] @relation("UserCompletedPETOrders")
+
+
+  
+}
+model Employee {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+
+  assignedBOPPSubJobs BOPPSubJob[] @relation("UserAssignedBOPPSubJobs")   
+  assignedPETSubJobs  PETSubJob[]  @relation("UserAssignedPETSubJobs") 
+}
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
 model User {
-    id            String    @id @default(cuid())
-    fname          String
-    lname          String
-    phone         String   @unique
-    email         String  @unique
-    password      String?
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    roleId   String
-    role     Role   @relation(fields: [roleId], references: [id])
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String   @unique
+  password  String?
+  image     String?
+  type      UserType @default(CUSTOMER) // Enum: CUSTOMER or EMPLOYEE
+
+  notifications          Notification[]
+
+  msgEmail       Boolean @default(false)
+  msgWhatsapp    Boolean @default(false)
+  msgWeb    Boolean @default(false)
+
+   passwordResetTokens    PasswordResetToken[] // relation
+  sessions  Session[]
+  accounts  Account[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer  Customer?
+  employee  Employee?
 }
 
 
+model Dept {
+  id           String @id @default(cuid())
+  name         String @unique // Short name (e.g., ADM, HR, AGT, etc.)
+  fullName     String
+  memberCount  Int    @default(0)
+
+  roles        Role[] @relation("DeptRoles")
+  boppJobs     BOPPJob[] @relation("DeptBOPPJobs")
+  petJobs      PETJob[] @relation("DeptPETJobs")
+}
 
 model Role {
   id           String           @id @default(cuid())
-  name         String           
-  deptId       String         
+  name         String
+  deptId       String
   dept         Dept             @relation("DeptRoles", fields: [deptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  users        User[]           
-  permissions  RolePermission[] 
+  users        Employee[]
+  permissions  RolePermission[]
+
   @@unique([name, deptId])
 }
 
 model Permission {
-  id           String           @id @default(cuid())
-  name         String           @unique
-  roles        RolePermission[] 
+  id    String           @id @default(cuid())
+  name  String           @unique
+  roles RolePermission[]
 }
-
 
 model RolePermission {
-  id           String       @id @default(cuid())
+  id           String @id @default(cuid())
   roleId       String
   permissionId String
+
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+// BOPP & PET Items
+
+model BOPPItem {
+  id          String @id @default(cuid())
+  name        String
+  documentUrl String? // Static file
+  customerId  String
+  customer    Customer @relation("UserBOPPItems",fields: [customerId], references: [id])
+}
+
+model PETItem {
+  id          String @id @default(cuid())
+  name        String
+  documentUrl String?
+  customerId  String
+  customer    Customer @relation("UserPETItems",fields: [customerId], references: [id])
   
-  role         Role         @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  permission   Permission   @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@unique([roleId, permissionId]) 
-}
-model Dept {
-  id        String       @id @default(cuid())
-  name        String   @unique   //shortNames (eg: HR, ADM,AGT,CUS, etc)       
-  fullName    String             
-  memberCount Int      @default(0)
-  roles       Role[]   @relation("DeptRoles")
 }
 
-model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+// Orders
 
-    @@unique([identifier, token])
+model BOPPOrder {
+  id          String @id @default(cuid())
+  detail      String
+  documentUrl String?
+  customerId  String
+  customer    Customer @relation("UserBOPPOrders",fields: [customerId], references: [id])
+}
+
+model PETOrder {
+  id          String @id @default(cuid())
+  detail      String
+  documentUrl String?
+  customerId  String
+  customer    Customer @relation("UserPETOrders",fields: [customerId], references: [id])
+}
+
+// Completed Orders
+
+model CompletedBOPPOrder {
+  id        String   @id @default(cuid())
+  detail    String
+  customerId  String
+  customer    Customer @relation("UserCompletedBOPPOrders",fields: [customerId], references: [id])
+
+
+  createdAt DateTime @default(now())
+}
+
+model CompletedPETOrder {
+  id        String   @id @default(cuid())
+  detail    String
+  customerId  String
+  customer    Customer @relation("UserCompletedPETOrders",fields: [customerId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+// JOB & SUBJOB SEPARATED FOR BOPP AND PET
+
+model BOPPJob {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  quantityKg  Float
+  dueDate     DateTime?
+  status      JobStatus  @default(PENDING)
+
+  deptId      String
+  dept      Dept     @relation("DeptBOPPJobs", fields: [deptId], references: [id])
+
+  subJobs     BOPPSubJob[]
+  documentUrl String?    // Pre-rendered document
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model PETJob {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  quantityKg  Float
+  dueDate     DateTime?
+  status      JobStatus  @default(PENDING)
+
+  deptId      String
+  dept      Dept     @relation("DeptPETJobs", fields: [deptId], references: [id])
+
+  subJobs     PETSubJob[]
+  documentUrl String?    // Pre-rendered document
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model BOPPSubJob {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  priority      Priority      @default(MEDIUM)
+  dueDate       DateTime?
+  status        SubJobStatus @default(PENDING)
+
+  jobId         String
+  job           BOPPJob       @relation(fields: [jobId], references: [id])
+
+  assignedToId  String?
+  assignedTo    Employee?         @relation("UserAssignedBOPPSubJobs", fields: [assignedToId], references: [id])
+
+  documentUrl   String?       // Pre-rendered document
+
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model PETSubJob {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  priority      Priority      @default(MEDIUM)
+  dueDate       DateTime?
+  status        SubJobStatus @default(PENDING)
+
+  jobId         String
+  job           PETJob        @relation(fields: [jobId], references: [id])
+
+  assignedToId  String?
+  assignedTo    Employee?         @relation("UserAssignedPETSubJobs", fields: [assignedToId], references: [id])
+
+  documentUrl   String?       // Pre-rendered document
+
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+//
+// ===================
+// ENUMS
+// ===================
+
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  HOLD
+}
+enum UserType {
+  CUSTOMER
+  EMPLOYEE
+}
+
+enum SubJobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  HOLD
+  FAILED
+  REVIEW
+}
+
+enum Priority {
+  LOWEST
+  LOW
+  MEDIUM
+  HIGH
+  HIGHEST
+  OPTIONAL     // May not be necessary but useful
+  CRITICAL     // More urgent than highest
+  BLOCKER      // Must be done before anything else
 }

@@ -27,7 +27,8 @@ export default function HomePage({ session }: { session: Session | null }) {
       },
     },
   };
-
+const role = session?.user.role
+  const perms = session?.user.permissions ?? []
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
@@ -121,8 +122,9 @@ export default function HomePage({ session }: { session: Session | null }) {
                 About Us
               </Button>
             </Link>
-
-            <Link href="/auth/login">
+        {!session && 
+            <Link href="/auth/signin">
+              
               <Button
                 size="lg"
                 variant="outline"
@@ -131,6 +133,33 @@ export default function HomePage({ session }: { session: Session | null }) {
                 Login
               </Button>
             </Link>
+            }
+            {session && <>
+            {role!=="CUSTOMER" &&
+            <Link href="/dashboard">
+              
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-blue-600 text-blue-600 rounded-lg py-3 px-6 transition-all duration-300 hover:bg-blue-600 hover:text-white hover:border-blue-700 dark:border-blue-500 dark:text-blue-500 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600"
+              >
+                Dashboard
+              </Button>
+            </Link>
+        }
+        { role=="CUSTOMER" &&
+            <Link href="/items">
+              
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-blue-600 text-blue-600 rounded-lg py-3 px-6 transition-all duration-300 hover:bg-blue-600 hover:text-white hover:border-blue-700 dark:border-blue-500 dark:text-blue-500 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600"
+              >
+                Order Items
+              </Button>
+            </Link>
+          }
+          </>}
 
           </motion.div>
         </div>

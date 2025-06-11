@@ -1,9 +1,12 @@
 // src/server/api/routers/permission.ts
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { permissionMiddleware } from "@/server/api/middleware/permissions";
 
 export const permRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(async ({ ctx }) => {
+  getAll: protectedProcedure 
+  .use(permissionMiddleware)
+  .query(async ({ ctx }) => {
     return ctx.db.permission.findMany();
   }),
 
@@ -15,7 +18,7 @@ export const permRouter = createTRPCRouter({
         z.object({
             name: z.string().min(1),
         })
-      )
+      ).use(permissionMiddleware)
       .mutation(async ({ ctx, input }) => {
         const existing = await ctx.db.permission.findUnique({
           where: {
@@ -45,7 +48,7 @@ export const permRouter = createTRPCRouter({
         z.object({
           id: z.string(), // Delete by id
         })
-      )
+      ).use(permissionMiddleware)
       .mutation(async ({ ctx, input }) => {
         try {
           const delPerm = await ctx.db.permission.delete({

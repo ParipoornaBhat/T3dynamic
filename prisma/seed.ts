@@ -36,17 +36,22 @@ const main = async () => {
 
     // Create Permissions
     const editRole = await db.permission.upsert({
-      where: { name: 'EDIT_ROLE' },
+      where: { name: 'MANAGE_ROLE' },
       update: {},
-      create: { name: 'EDIT_ROLE' },
+      create: { name: 'MANAGE_ROLE' },
     });
 
     const editPermission = await db.permission.upsert({
-      where: { name: 'EDIT_PERMISSION' },
+      where: { name: 'MANAGE_PERMISSION' },
       update: {},
-      create: { name: 'EDIT_PERMISSION' },
+      create: { name: 'MANAGE_PERMISSION' },
     });
-
+await db.permission.createMany({
+data:[
+ {name: 'MANAGE_CUSTOMER'},
+ { name: 'MANAGE_EMPLOYEE'},
+]
+});
     const adminRole = await db.role.upsert({
   where: {
     name_deptId: {
@@ -108,40 +113,75 @@ const customerRole = await db.role.upsert({
     });
 
     // Create Users
-    const users = [
-      {
-        email: 'admin@example.com',
-        fname: 'Admin',
-        lname: 'User',
-        phone: '1000000000',
-        password: await bcrypt.hash('456456', saltRounds),
-        roleId: adminRole.id,
-      },
-      {
-        email: 'dev@example.com',
-        fname: 'Developer',
-        lname: 'User',
-        phone: '1000000001',
-        password: await bcrypt.hash('456456', saltRounds),
-        roleId: developerRole.id,
-      },
-      {
-        email: 'customer@example.com',
-        fname: 'Customer',
-        lname: 'User',
-        phone: '1000000002',
-        password: await bcrypt.hash('456456', saltRounds),
-        roleId: customerRole.id,
-      },
-    ];
+  const users = [
+    {
+      name: 'Admin User',
+      email: 'admin@example.com',
+      phone: '1000000000',
+      password: await bcrypt.hash('456456', saltRounds),
+      type: 'EMPLOYEE',
+      roleId: adminRole.id,
+    },
+    {
+      name: 'Developer User',
+      email: 'paripoornabhat@gmail.com',
+      phone: '1000000001',
+      password: await bcrypt.hash('456456', saltRounds),
+      type: 'EMPLOYEE',
+      roleId: developerRole.id,
+    },
+    {
+      name: 'Customer User',
+      email: 'customer@example.com',
+      phone: '1000000002',
+      password: await bcrypt.hash('456456', saltRounds),
+      type: 'CUSTOMER',
+      roleId: customerRole.id,
+    },
+  ];
 
-    for (const user of users) {
-      await db.user.upsert({
-        where: { email: user.email },
+  for (const user of users) {
+    const createdUser = await db.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        password: user.password,
+        type: user.type as any,
+      },
+    });
+
+    if (user.type === 'EMPLOYEE') {
+      await db.employee.upsert({
+        where: { userId: createdUser.id },
         update: {},
-        create: user,
+        create: {
+          userId: createdUser.id,
+          roleId: user.roleId,
+        },
       });
     }
+
+    if (user.type === 'CUSTOMER') {
+      await db.customer.upsert({
+        where: { userId: createdUser.id },
+        update: {},
+        create: {
+          userId: createdUser.id,
+         companyBilling: ['Name1', 'Name2'],
+    brands: ['Dynamic Packaging Pvt Ltd', 'Shree Packaging Co.'],
+    addresses: [
+      'Plot No. 23, Industrial Area, Mumbai, Maharashtra',
+      'Unit 12, Sector 5, Bhiwandi, Thane, Maharashtra',
+    ],
+        },
+      });
+    }
+  }
+
+  console.log('✅ Seed completed');
 
     console.log('✅ Seed data successfully created!');
   } catch (error) {

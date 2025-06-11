@@ -16,9 +16,14 @@ import { format } from "date-fns"
 import { ComponentLoading } from "@/app/_components/component-loading"
 
 import { toast } from "sonner"
-export function ProfileCard() {
+export function AnyProfileCard({ userId }: { userId: string }) {
   const { data: session } = useSession()
-  const { data: profileRaw, isLoading: profileLoading } = api.user.viewProfile.useQuery()
+  const role = session?.user.role
+  const perms = session?.user.permissions ?? []
+  const has = (perm: string) => perms.includes(perm)
+
+
+const { data: profileRaw, isLoading: profileLoading } = api.user.viewAnyProfile.useQuery({ userId })
   const [profile, setProfile] = useState<Profile>()
   const utils = api.useUtils();
  const [msgEmail, setMsgEmail] = useState(false);
@@ -28,7 +33,6 @@ export function ProfileCard() {
   
   useEffect(() => {
     if (profileRaw) setProfile(profileRaw as Profile)
-      
   }, [profileRaw])
   useEffect(() => {
     if (profile) {
@@ -197,6 +201,8 @@ if(profileLoading) {
     <hr className="mt-4 mx-auto w-[80%] border-t border-gray-300 dark:border-gray-700" />
   </>
 )}
+
+
   {/* EMPLOYEE PERMISSIONS */}
   {profile.type === "EMPLOYEE" && (
     <>

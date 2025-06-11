@@ -1,21 +1,36 @@
 // src/server/api/routers/dept.ts
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-
+import { permissionMiddleware } from "@/server/api/middleware/permissions";
+import { TRPCError } from "@trpc/server";
 export const deptRouter = createTRPCRouter({
-getAll: protectedProcedure.query(async ({ ctx }) => {
-  return ctx.db.dept.findMany({
-    include: {
-      roles: {
-        select:{
-            id: true,
-            name: true,
-        }
+ getAll: protectedProcedure
+    .use(permissionMiddleware)
+    .query(async ({ ctx }) => {
+      try {
+        const departments = await ctx.db.dept.findMany({
+          include: {
+            roles: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
 
-      },
-    },
-  });
-}),
+        return departments;
+      } catch (error) {
+        console.error("Failed to fetch departments", error);
+
+        // Optional: Customize based on known Prisma error types
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch departments. Please try again later.",
+        });
+      }
+    }),
+
 
 
 
@@ -26,6 +41,7 @@ getAll: protectedProcedure.query(async ({ ctx }) => {
       fullName: z.string().min(3).max(100),   // descriptive name like "Administration"
     })
   )
+  .use(permissionMiddleware)
   .mutation(async ({ ctx, input }) => {
     const existing = await ctx.db.dept.findUnique({
       where: { name: input.name },
@@ -51,7 +67,7 @@ delete: protectedProcedure
     z.object({
       id: z.string().min(1), // Delete by id
     })
-  )
+  ).use(permissionMiddleware)
   .mutation(async ({ ctx, input }) => {
     try {
       const deletedDept = await ctx.db.dept.delete({

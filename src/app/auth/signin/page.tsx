@@ -55,7 +55,11 @@ const [password, setPassword] = useState("");
           toast.error("An unexpected error occurred. Please try again later.")
         }
       } else if (result?.ok) {
-        toast.success("Login successful!")
+         document.cookie = [
+                      "flash_success=Login successful!.",
+                      "max-age=10",
+                      "path=/",
+                    ].join("; ");
         window.location.href = "/"
       }
       else {
@@ -186,7 +190,7 @@ const { theme, resolvedTheme } = useTheme();
                     Password
                   </Label>
                   <Link
-                    href="/forgot-password"
+                    href="/auth/forgotpassword"
                     className="ml-auto inline-block text-sm underline text-primary hover:text-primary/80 transition-colors duration-300"
                   >
                     Forgot your password?

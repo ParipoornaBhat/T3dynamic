@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/app/_components/ui/button";
@@ -19,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/_components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/app/_components/ui/sheet";
+import { Sheet, SheetContent,SheetDescription, SheetTrigger } from "@/app/_components/ui/sheet";
 import {  SheetHeader, SheetTitle } from "@/app/_components/ui/sheet"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { ModeToggle } from "@/app/_components/ui/mode-toggle";
@@ -27,28 +28,21 @@ import { FaCircleUser, FaCartShopping } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useSession } from "next-auth/react"; // Import NextAuth's useSession hook
-
+import { useSession } from "next-auth/react"
 import { useScrollDirection } from "@/app/_components/other/use-scroll-direction"; // Custom hook to detect scroll direction
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react"
 
 
-  const adminMessages = [
-  "Free shipping on orders over $150",
-  "30-day curl guarantee",
-  "New arrivals just dropped!",
-  "Buy 1 Get 1 Free on select wigs",
-]
-
-const handleSignOut = () => {
-  signOut({ callbackUrl: "/", redirect: false })
-  toast.success("You have been signed out successfully.")
-}
-
-
+  
 
 export function Navbar() {
+
+  const { data: session } = useSession()
+  const role = session?.user.role
+  const perms = session?.user.permissions ?? []
+  const has = (perm: string) => perms.includes(perm)
+
 const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
 
@@ -66,30 +60,12 @@ const [open, setOpen] = useState(false);
 useEffect(() => {
     console.log(open);
   }, [open]);//when ever opened or closed
-  const { data: session } = useSession()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const pathname = usePathname();
-const handleSignOut = () => {
-  signOut({ callbackUrl: "/", redirect: false })
-  toast.success("You have been signed out successfully.")
-}
+
   const scrollDirection = useScrollDirection();
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
-    // Only show these links if a user is logged in
-    ...(session
-      ? [
-          { name: "Admin Dashboard", href: "/admin/dashboard" },
-          { name: "Item Dashboard", href: "/items" },
-          { name: "Orders Management", href: "/orders" },
-          { name: "Settings & Report", href: "/settings-report" },
-          { name: "Tasks", href: "/tasks" },
-        ]
-      : []),
-  ];
+  
 
   return (
   <header
@@ -126,15 +102,28 @@ const handleSignOut = () => {
           </Link>
           {session && (
             <>
+            
+            { role == "CUSTOMER" && <>
               <Link href="/orderitems" className="text-gray-700 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400">
-                Order
+                Order-Items
               </Link>
               <Link href="/orderhistory" className="text-gray-700 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400">
-                Order History
+                Order-History
               </Link>
+            </>}
+          { role !== "CUSTOMER" && <>
               <Link href="/dashboard" className="text-gray-700 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400">
                 Dashboard
               </Link>
+              <Link href="/orderitems" className="text-gray-700 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400">
+                Order
+              </Link>
+</>
+              }
+              <Link href="/notifications" className="text-gray-700 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400">
+                Notifications
+              </Link>
+
             </>
           )}
         </nav>
@@ -153,37 +142,61 @@ const handleSignOut = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-                  <DropdownMenuItem onClick={() => setOpen(false)}>
-                    <Link href="/account">My Account</Link>
-                  </DropdownMenuItem>
-                  <Sheet>
-              <SheetTrigger asChild>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Profile</DropdownMenuItem>
-              </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="w-full sm:max-w-md bg-gradient-to-b from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900"
-              >
-                <ProfileCard />
-              </SheetContent>
-            </Sheet>
-                  <DropdownMenuItem onClick={() => setOpen(false)}>
-                    <Link href="/orders">My Orders</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setOpen(false)}>
-                    <Link href="/admin">Admin Dashboard</Link>
-                  </DropdownMenuItem>
                   
+                <Sheet>
+  <SheetTrigger asChild>
+    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Profile</DropdownMenuItem>
+  </SheetTrigger>
+
+  <SheetContent
+    side="right"
+    className="lg:mt-14 w-full sm:max-w-md lg:max-w-sm lg:max-h-sm sm:max-h-sm rounded-sm bg-gradient-to-b from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900 shadow-xl lg:pr-1 lg:pl-1 lg:pb-1 lg:pt-1 lg:rounded-lg overflow-y-auto"
+  >
+    {/* ✅ Visually hidden accessible title */}
+    <SheetTitle className="sr-only">User Profile</SheetTitle>
+            <SheetDescription id="sheet-description" className="sr-only">
+    View and manage your profile details.
+  </SheetDescription>
+    <ProfileCard />
+  </SheetContent>
+</Sheet>
+
+
+
+            {role==="CUSTOMER" && <>
                   <DropdownMenuItem onClick={() => setOpen(false)}>
-                  <button
-                      onClick={() => {
-                        handleSignOut();
-                        setOpen(false);
-                      }}
-                      className="w-full text-left"
-                    >
-                      Sign Out
-                  </button>
+                    <Link href="/orderhistory">My Orders</Link>
+                  </DropdownMenuItem>
+            </>}
+              {role!=="CUSTOMER" && <>
+                  <DropdownMenuItem onClick={() => setOpen(false)}>
+                    <Link href="/dashboard">{role==="ADMIN" && <>Admin</>} Dashboard</Link>
+                  </DropdownMenuItem>
+                  </>}
+                  <DropdownMenuItem onClick={() => setOpen(false)}>
+                    <Link href="/notifications">Notifications</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setOpen(false)}>
+                 <button
+                  onClick={async () => {
+                    await signOut({ redirect: false }); // Wait for next-auth sign out
+                    setOpen(false);
+
+                    // Set a 5-second flash success cookie
+                    document.cookie = [
+                      "flash_success=You are signed out successfully.",
+                      "max-age=5",
+                      "path=/",
+                    ].join("; ");
+
+                    window.location.href = "/"; // Redirect to home
+                  }}
+                  className="w-full text-left"
+                >
+                  Sign Out
+                </button>
+
+
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -217,6 +230,7 @@ const handleSignOut = () => {
           className="bg-gradient-to-b from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900"
         >
           <SheetHeader>
+            
       <SheetTitle>
         <VisuallyHidden>Navigation Menu</VisuallyHidden>
       </SheetTitle>
@@ -259,7 +273,24 @@ const handleSignOut = () => {
         <FaTachometerAlt className="h-5 w-5" />
         Dashboard
       </Link>
-      
+       <button
+        onClick={async () => {
+          await signOut({ redirect: false }); // Wait for next-auth sign out
+          setOpen(false);
+
+          // Set a 5-second flash success cookie
+          document.cookie = [
+            "flash_success=You are signed out successfully.",
+            "max-age=5",
+            "path=/",
+          ].join("; ");
+
+          window.location.href = "/"; // Redirect to home
+        }}
+        className="w-full text-left"
+      >
+        Sign Out
+    </button>
     </>
   ) : (
     <Link href="/auth/signin" onClick={handleClose}  className="flex items-center gap-2 text-gray-700 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400">
