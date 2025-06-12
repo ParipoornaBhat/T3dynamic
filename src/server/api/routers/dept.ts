@@ -31,6 +31,26 @@ export const deptRouter = createTRPCRouter({
       }
     }),
 
+getAllDept: protectedProcedure
+  .use(permissionMiddleware)
+  .query(async ({ ctx }) => {
+    try {
+      const departments = await ctx.db.dept.findMany({
+        select: {
+          id: true,
+          name: true,
+          fullName: true,
+        },
+      });
+      return departments;
+    } catch (error) {
+      console.error("Failed to fetch departments", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to fetch departments. Please try again later.",
+      });
+    }
+  }),
 
 
 

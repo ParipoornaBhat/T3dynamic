@@ -13,7 +13,7 @@ export function ComponentLoading({ message = "Loading...", size = "md" }: Compon
   }
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center ">
+    <div className="h-auto flex flex-col items-center justify-center ">
       <div className="relative">
         <Loader2 className={`${sizeClasses[size]} animate-spin text-primary`} />
         <div

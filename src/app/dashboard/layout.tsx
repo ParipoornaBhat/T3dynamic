@@ -251,9 +251,10 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* main content */}
-        <main className="overflow-auto bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-          {children}
-        </main>
+        <main className="w-full max-w-screen overflow-x-hidden overflow-y-auto bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+  {children}
+</main>
+
 
         {/* footer */}
         <footer className="bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t border-gray-200 px-6 py-3 text-sm text-gray-500">

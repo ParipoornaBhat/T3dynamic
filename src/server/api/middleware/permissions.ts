@@ -6,7 +6,7 @@ export const permissionMiddleware = middleware(async ({ path, ctx, next }) => {
   const { session } = ctx;
 
   if (!session || !session.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED", message: "Not logged in." });
+    throw new Error("UNAUTHORIZED: Not logged in." );
   }
 
   const requiredPermissions = routePermissionMap[path] ?? [];
@@ -17,10 +17,7 @@ export const permissionMiddleware = middleware(async ({ path, ctx, next }) => {
   );
 
   if (!hasAny) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: `You need one of the following permission(s): ${requiredPermissions.join(", ")}`,
-    });
+    throw new Error(`FORBIDDEN: You need one of the following permission(s): ${requiredPermissions.join(", ")}`);
   }
 
   return next();

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -8,13 +9,12 @@ import {
 import { permissionMiddleware } from "@/server/api/middleware/permissions";
 
 export const userRouter = createTRPCRouter({
-  signUpCustomer: protectedProcedure
+  registerCustomer: protectedProcedure
   .input(
     z.object({
+      name: z.string().min(1).max(100),
       email: z.string().email(),
       password: z.string().min(6),
-      fname: z.string().min(1).max(50),
-      lname: z.string().min(1).max(50),
       phone: z.string(),
       brands: z.array(z.string()).optional(),
       addresses: z.array(z.string()).optional(),
@@ -24,10 +24,9 @@ export const userRouter = createTRPCRouter({
   .use(permissionMiddleware)
   .mutation(async ({ ctx, input }) => {
     const {
+      name,
       email,
       password,
-      fname,
-      lname,
       phone,
       brands = [],
       addresses = [],
@@ -37,17 +36,33 @@ export const userRouter = createTRPCRouter({
     const existingUser = await ctx.db.user.findUnique({ where: { email } });
     if (existingUser) throw new Error("User already exists");
 
+    // Fetch CUS department (short name must be "CUS")
+    const dept = await ctx.db.dept.findUnique({ where: { name: "CUS" } });
+    if (!dept) throw new Error("Customer department not found");
+
+    // Generate customer ID (e.g., CUS-001)
+    const nextCount = dept.memberCount + 1;
+    const formattedId = `${dept.name}-${String(nextCount).padStart(3, "0")}`;
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await ctx.db.user.create({
-      data: {
-        name: `${fname} ${lname}`,
-        email,
-        phone,
-        password: hashedPassword,
-        type: "CUSTOMER",
-      },
-    });
+    // Transaction: update count + create user + create customer
+    const [_, newUser] = await ctx.db.$transaction([
+      ctx.db.dept.update({
+        where: { id: dept.id },
+        data: { memberCount: { increment: 1 } },
+      }),
+      ctx.db.user.create({
+        data: {
+          id: formattedId,
+          name,
+          email,
+          phone,
+          password: hashedPassword,
+          type: "CUSTOMER",
+        },
+      }),
+    ]);
 
     await ctx.db.customer.create({
       data: {
@@ -65,38 +80,58 @@ export const userRouter = createTRPCRouter({
     };
   }),
 
-  signUpEmployee: protectedProcedure
+  registerEmployee: protectedProcedure
   .input(
     z.object({
+      name: z.string().min(1).max(100),
       email: z.string().email(),
       password: z.string().min(6),
-      fname: z.string().min(1).max(50),
-      lname: z.string().min(1).max(50),
       phone: z.string(),
       roleId: z.string(),
+      deptId: z.string(), // required to fetch memberCount and name
     })
   )
   .use(permissionMiddleware)
   .mutation(async ({ ctx, input }) => {
-    const { email, password, fname, lname, phone, roleId } = input;
+    const { name, email, password, phone, roleId, deptId } = input;
 
+    // Check for existing user
     const existingUser = await ctx.db.user.findUnique({ where: { email } });
     if (existingUser) throw new Error("User already exists");
 
+    // Fetch department
+    const dept = await ctx.db.dept.findUnique({ where: { id: deptId } });
+    if (!dept) throw new Error("Invalid department");
+
+    // Validate role belongs to department (optional)
     const role = await ctx.db.role.findUnique({ where: { id: roleId } });
-    if (!role) throw new Error("Invalid role");
+    if (!role || role.deptId !== dept.id) {
+      throw new Error("Role does not belong to the selected department");
+    }
+
+    // Generate user ID (e.g., DEV-001)
+    const nextCount = dept.memberCount + 1;
+    const formattedId = `${dept.name}-${String(nextCount).padStart(3, "0")}`;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await ctx.db.user.create({
-      data: {
-        name: `${fname} ${lname}`,
-        email,
-        phone,
-        password: hashedPassword,
-        type: "EMPLOYEE",
-      },
-    });
+    // Run all in transaction
+    const [_, newUser] = await ctx.db.$transaction([
+      ctx.db.dept.update({
+        where: { id: dept.id },
+        data: { memberCount: { increment: 1 } },
+      }),
+      ctx.db.user.create({
+        data: {
+          id: formattedId,
+          name,
+          email,
+          phone,
+          password: hashedPassword,
+          type: "EMPLOYEE",
+        },
+      }),
+    ]);
 
     await ctx.db.employee.create({
       data: {
@@ -111,6 +146,7 @@ export const userRouter = createTRPCRouter({
       name: newUser.name,
     };
   }),
+
 
 //general profiles operations
 viewProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -269,12 +305,6 @@ viewProfile: protectedProcedure.query(async ({ ctx }) => {
       return { success: true };
     }),
 
-
-    //manage user and employee operations
-
-
-
-
   viewAnyProfile: protectedProcedure
     .input(z.object({ userId: z.string() }))
   .use(permissionMiddleware)
@@ -397,6 +427,208 @@ viewProfile: protectedProcedure.query(async ({ ctx }) => {
 
     return { success: true };
   }),
+
+ searchCustomers: protectedProcedure
+  .input(
+    z.object({
+      search: z.string().optional(),
+      role: z.string().optional(), // allow filtering by role (e.g., AGENT, CUSTOMER)
+      sort: z.enum([
+        "name-asc",
+        "name-desc",
+        "email-asc",
+        "email-desc",
+        "createdAt-asc",
+        "createdAt-desc",
+      ]).optional(),
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(100).default(10),
+    })
+  )
+  .query(async ({ input, ctx }) => {
+    const {
+      search,
+      role,
+      sort = "name-asc",
+      page,
+      limit,
+    } = input;
+
+    const whereClause: Prisma.UserWhereInput = {
+      type: "CUSTOMER",
+      ...(search && {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { email: { contains: search, mode: "insensitive" } },
+        ],
+      }),
+      ...(role && { role }),
+    };
+
+    // Define a safe sort map
+   const orderByClause: Prisma.UserOrderByWithRelationInput = (() => {
+  if (sort === "name-asc") return { name: "asc" };
+  if (sort === "name-desc") return { name: "desc" };
+  if (sort === "email-asc") return { email: "asc" };
+  if (sort === "email-desc") return { email: "desc" };
+  if (sort === "createdAt-asc") return { createdAt: "asc" };
+  if (sort === "createdAt-desc") return { createdAt: "desc" };
+
+  return { createdAt: "desc" }; // fallback
+})();
+
+    const [customers, totalCount] = await Promise.all([
+      ctx.db.user.findMany({
+        where: whereClause,
+        orderBy: orderByClause,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          type: true,
+        },
+      }),
+      ctx.db.user.count({ where: whereClause }),
+    ]);
+
+    return {
+      profiles: customers.map((cust) => ({
+        id: cust.id,
+        name: cust.name,
+        email: cust.email,
+        phone: cust.phone,
+        type: cust.type,
+        role: "CUSTOMER", // fallback in case role is null
+      })),
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+    };
+  }),
+
+
+  // src/server/api/routers/profile.ts
+
+searchEmployees: protectedProcedure
+  .input(
+  z.object({
+    search: z.string().optional(),
+    role: z.string().optional(), // filter by role name
+    dept: z.string().optional(), // filter by dept name
+    sort: z.enum(["name-asc", "name-desc", "email-asc", "email-desc", "createdAt-asc","createdAt-desc"]).optional(),
+    page: z.number().min(1).default(1),
+    limit: z.number().min(1).max(100).default(10),
+  })
+)
+
+ .query(async ({ input, ctx }) => {
+ let {
+  search,
+  role: rawRole,
+  dept: rawDept,
+  sort = "name-asc",
+  page = 1,
+  limit = 10,
+} = input;
+
+const role = rawRole === "ALL" ? undefined : rawRole;
+const dept = rawDept === "ALL" ? undefined : rawDept;
+
+  // Construct dynamic where clause
+  const whereClause: Prisma.UserWhereInput = {
+    type: "EMPLOYEE",
+    ...(search && {
+      OR: [
+        { name: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: "insensitive" } },
+      ],
+    }),
+    ...(role || dept
+      ? {
+          employee: {
+            role: {
+              ...(role && {
+                name: { equals: role, mode: "insensitive" },
+              }),
+              ...(dept && {
+                dept: {
+                  id: { equals: dept, mode: "insensitive" },
+                },
+              }),
+            },
+          },
+        }
+      : {}),
+  };
+
+  const orderByClause: Prisma.UserOrderByWithRelationInput = (() => {
+  if (sort === "name-asc") return { name: "asc" };
+  if (sort === "name-desc") return { name: "desc" };
+  if (sort === "email-asc") return { email: "asc" };
+  if (sort === "email-desc") return { email: "desc" };
+  if (sort === "createdAt-asc") return { createdAt: "asc" };
+  if (sort === "createdAt-desc") return { createdAt: "desc" };
+
+  return { createdAt: "desc" }; // fallback
+})();
+
+
+
+  const [employees, totalCount] = await Promise.all([
+    ctx.db.user.findMany({
+      where: whereClause,
+      orderBy: orderByClause,
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        type: true,
+        employee: {
+          select: {
+            role: {
+              select: {
+                name: true,
+                dept: {
+                  select: {
+                    name: true,
+                    fullName: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    ctx.db.user.count({ where: whereClause }),
+  ]);
+
+  return {
+    profiles: employees.map((emp) => ({
+      id: emp.id,
+      name: emp.name,
+      email: emp.email,
+      phone: emp.phone,
+      type: emp.type,
+      role: emp.employee?.role
+        ? {
+            name: emp.employee.role.name,
+            dept: emp.employee.role.dept,
+          }
+        : "CUSTOMER",
+    })),
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+  };
+}),
+
+
+
 
 
 });

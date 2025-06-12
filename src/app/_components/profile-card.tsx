@@ -16,20 +16,49 @@ import { format } from "date-fns"
 import { ComponentLoading } from "@/app/_components/component-loading"
 
 import { toast } from "sonner"
+
+
+type Profile = {
+  id: string
+  name: string
+  email: string
+  phone: string
+  type: "CUSTOMER" | "EMPLOYEE"
+  msgEmail: boolean
+  msgWhatsapp: boolean
+  msgWeb: boolean
+  createdAt: string
+  updatedAt: string
+  role: "CUSTOMER" | {
+    name: string
+    dept: {
+      name: string
+      fullName: string
+    }
+  }
+  customer?: {
+    companyBilling: string[]
+    brands: string[]
+    addresses: string[]
+    totalItemsBOPP: number
+    totalItemsPET: number
+  }
+}
 export function ProfileCard() {
   const { data: session } = useSession()
   const { data: profileRaw, isLoading: profileLoading } = api.user.viewProfile.useQuery()
   const [profile, setProfile] = useState<Profile>()
+   useEffect(() => {
+    if (profileRaw) setProfile(profileRaw as Profile)
+      
+  }, [profileRaw])
   const utils = api.useUtils();
  const [msgEmail, setMsgEmail] = useState(false);
   const [msgWhatsapp, setMsgWhatsapp] = useState(false);
   const [msgWeb, setMsgWeb] = useState(false);
 
   
-  useEffect(() => {
-    if (profileRaw) setProfile(profileRaw as Profile)
-      
-  }, [profileRaw])
+ 
   useEffect(() => {
     if (profile) {
       setMsgEmail(profile.msgEmail);
@@ -269,29 +298,4 @@ if(profileLoading) {
 
 // Profile type
 
-type Profile = {
-  id: string
-  name: string
-  email: string
-  phone: string
-  type: "CUSTOMER" | "EMPLOYEE"
-  msgEmail: boolean
-  msgWhatsapp: boolean
-  msgWeb: boolean
-  createdAt: string
-  updatedAt: string
-  role: "CUSTOMER" | {
-    name: string
-    dept: {
-      name: string
-      fullName: string
-    }
-  }
-  customer?: {
-    companyBilling: string[]
-    brands: string[]
-    addresses: string[]
-    totalItemsBOPP: number
-    totalItemsPET: number
-  }
-}
+

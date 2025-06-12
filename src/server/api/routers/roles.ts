@@ -33,6 +33,34 @@ export const roleRouter = createTRPCRouter({
 
 }),
 
+ getAllRoles: protectedProcedure
+  .use(permissionMiddleware)
+  .query(async ({ ctx }) => {
+    try {
+      const roles = await ctx.db.role.findMany({
+        select: {
+          id: true,
+          name: true,
+          dept: {
+            select: {
+              id: true,
+              name: true,
+              fullName: true,
+            },
+          },
+        },
+      });
+      return roles;
+    } catch (error) {
+      console.error("Failed to fetch roles", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to fetch roles. Please try again later.",
+      });
+    }
+  }),
+
+
 
      create: protectedProcedure
   .input(

@@ -259,7 +259,7 @@ const deleteDept = (deptId: string) => {
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-teal-50 via-purple-50 to-orange-50 dark:from-teal-900 dark:via-purple-900 dark:to-orange-900">
       <motion.div
-        className="flex flex-col gap-2 p-1 md:p-6"
+        className="flex flex-col gap-2 p-2 md:p-6"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -272,7 +272,7 @@ const deleteDept = (deptId: string) => {
         </motion.h1>
 
         <Tabs defaultValue="permissions" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-teal-100 to-purple-100 dark:from-teal-800 dark:to-purple-800">
+          <TabsList className="grid w-auto grid-cols-4 bg-gradient-to-r from-teal-100 to-purple-100 dark:from-teal-800 dark:to-purple-800">
             <TabsTrigger
               value="permissions"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
@@ -292,160 +292,163 @@ const deleteDept = (deptId: string) => {
            }
           </TabsList>
 
-        <TabsContent value="permissions">
-      <motion.div variants={itemVariants}>
-        <Card className="bg-gradient-to-br from-white to-teal-50 dark:from-gray-900 dark:to-teal-900 shadow-xl">
-          <CardHeader>
-            <CardTitle className="text-teal-700 dark:text-teal-300">Role & Permission Management</CardTitle>
-            <CardDescription>Define roles and assign specific permissions.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-6">
-            {/* Create Department */}
-            <div className="grid gap-4 p-4 border rounded-lg bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900 dark:to-blue-900">
-              <h3 className="text-lg font-semibold">Create Department</h3>
-              <div className="flex flex-col md:flex-row gap-2">
-                <Input
-                  placeholder="Dept ID (e.g., 'ADM')"
-                  value={newDeptName}
-                  onChange={(e) => setNewDeptName(e.target.value)}
-                />
-                <Input
-                  placeholder="Full Department Name"
-                  value={newDeptFullName}
-                  onChange={(e) => setNewDeptFullName(e.target.value)}
-                />
-                <Button onClick={addNewDepartment} className="bg-gradient-to-r from-cyan-500 to-blue-500">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Department
-                </Button>
-              </div>
-            </div>
+       <TabsContent value="permissions">
+  <motion.div variants={itemVariants}>
+    <Card className="bg-gradient-to-br from-white to-teal-50 dark:from-gray-900 dark:to-teal-900 shadow-xl">
+      <CardHeader>
+        <CardTitle className="text-teal-700 dark:text-teal-300">Role & Permission Management</CardTitle>
+        <CardDescription>Define roles and assign specific permissions.</CardDescription>
+      </CardHeader>
+      <CardContent className="grid gap-6">
 
-            {/* Add Role */}
-            <div className="grid gap-4 p-4 border rounded-lg bg-gradient-to-r from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900">
-              <h3 className="text-lg font-semibold">Add New Role</h3>
-              <div className="flex flex-col md:flex-row items-center gap-2">
-                <Input
-                  placeholder="New Role Name"
-                  value={newRoleName}
-                  onChange={(e) => setNewRoleName(e.target.value)}
-                />
-                <Select onValueChange={setSelectedDeptId} value={selectedDeptId ?? undefined}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select Department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id}>
-                        {dept.fullName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button onClick={addNewRole} className="bg-gradient-to-r from-teal-500 to-purple-500">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Role
-                </Button>
-              </div>
-            </div>
+        {/* Create Department */}
+        <div className="grid gap-4 p-4 border rounded-lg bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900 dark:to-blue-900">
+          <h3 className="text-lg font-semibold">Create Department</h3>
+          <div className="flex flex-col md:flex-row gap-2">
+            <Input
+              placeholder="Dept ID (e.g., 'ADM')"
+              value={newDeptName}
+              onChange={(e) => setNewDeptName(e.target.value)}
+            />
+            <Input
+              placeholder="Full Department Name"
+              value={newDeptFullName}
+              onChange={(e) => setNewDeptFullName(e.target.value)}
+            />
+            <Button onClick={addNewDepartment} className="bg-gradient-to-r from-cyan-500 to-blue-500">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Department
+            </Button>
+          </div>
+        </div>
 
-            {/* Add Permission */}
-            {has("MANAGE_PERMISSION") &&
-            <div className="grid gap-4 p-4 border rounded-lg bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-900 dark:to-pink-900">
-              <h3 className="text-lg font-semibold">Add New Permission</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <Input
-                  placeholder="Permission Name"
-                  value={newPermissionName}
-                  onChange={(e) => setNewPermissionName(e.target.value)}
-                />
-                
-                <Button onClick={addNewPermission} className="bg-gradient-to-r from-orange-500 to-pink-500">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Permission
-                </Button>
-              </div>
-            </div>
-}
-            <Separator />
+        {/* Add Role */}
+        <div className="grid gap-4 p-4 border rounded-lg bg-gradient-to-r from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900">
+          <h3 className="text-lg font-semibold">Add New Role</h3>
+          <div className="flex flex-col md:flex-row items-center gap-2">
+            <Input
+              placeholder="New Role Name"
+              value={newRoleName}
+              onChange={(e) => setNewRoleName(e.target.value)}
+            />
+            <Select onValueChange={setSelectedDeptId} value={selectedDeptId ?? undefined}>
+              <SelectTrigger className="w-full sm:w-[150px]">
+                <SelectValue placeholder="Select Department" />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map((dept) => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.fullName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={addNewRole} className="bg-gradient-to-r from-teal-500 to-purple-500">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Role
+            </Button>
+          </div>
+        </div>
 
-            {/* Permissions Matrix */}
-          <div className="relative">
-            {/* Overlay when loading */}
-            {[
-                    createDeptMutation,
-                    createRoleMutation,
-                    createPermMutation,
-                    deleteDeptMutation,
-                    deleteRoleMutation,
-                    deletePermMutation,
-                    toggleRolePermMutation,
-                  ].some((m) => m.isPending) && (
-             <div className="absolute inset-0 z-10 bg-gradient-to-r from-teal-50/30 to-purple-50/30 dark:from-teal-900/30 dark:to-purple-900/30 backdrop-blur-sm flex items-center justify-center">
+        {/* Add Permission */}
+        {has("MANAGE_PERMISSION") && (
+          <div className="grid gap-4 p-4 border rounded-lg bg-gradient-to-r from-orange-50 to-pink-50 dark:from-orange-900 dark:to-pink-900">
+            <h3 className="text-lg font-semibold">Add New Permission</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <Input
+                placeholder="Permission Name"
+                value={newPermissionName}
+                onChange={(e) => setNewPermissionName(e.target.value)}
+              />
+              <Button onClick={addNewPermission} className="bg-gradient-to-r from-orange-500 to-pink-500">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Permission
+              </Button>
+            </div>
+          </div>
+        )}
+
+        <Separator />
+
+        {/* Permissions Matrix */}
+        <div className="relative">
+          {/* Overlay when loading */}
+          {[
+            createDeptMutation,
+            createRoleMutation,
+            createPermMutation,
+            deleteDeptMutation,
+            deleteRoleMutation,
+            deletePermMutation,
+            toggleRolePermMutation,
+          ].some((m) => m.isPending) && (
+            <div className="absolute inset-0 z-10 bg-gradient-to-r from-teal-50/30 to-purple-50/30 dark:from-teal-900/30 dark:to-purple-900/30 backdrop-blur-sm flex items-center justify-center">
               <div className="text-black dark:text-white animate-pulse text-sm">
                 <ComponentLoading message="Updating permissions..." />
               </div>
             </div>
-            )}
+          )}
 
-            {/* Actual content (underneath) */}
-            <div className={toggleRolePermMutation.isPending ? "pointer-events-none select-none opacity-50" : ""}>
-              <div className="grid gap-6">
-                <h3 className="text-lg font-semibold">Role Permissions Matrix</h3>
-                {departments.map((dept) => (
-                  <div key={dept.id} className="border rounded-lg">
-                    <div className="bg-gradient-to-r from-teal-200 to-purple-200 dark:from-teal-800 dark:to-purple-800 p-3 font-semibold flex justify-between items-center">
-                      <span>{dept.fullName}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteDept(dept.id)}
-                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
+          {/* Actual content */}
+          <div className={toggleRolePermMutation.isPending ? "pointer-events-none select-none opacity-50" : ""}>
+            <div className="grid gap-6">
+              <h3 className="text-lg font-semibold">Role Permissions Matrix</h3>
+              {departments.map((dept) => (
+                <div key={dept.id} className="border rounded-lg overflow-auto">
+                  <div className="bg-gradient-to-r from-teal-200 to-purple-200 dark:from-teal-800 dark:to-purple-800 p-3 font-semibold flex justify-between items-center">
+                    <span>{dept.fullName}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteDept(dept.id)}
+                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse">
-                        <thead>
-                          <tr>
-                            <th className="border p-3 text-left font-semibold">Role</th>
-                            {permissions .filter((perm) => perm.name !== 'MANAGE_PERMISSION').map((perm) => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse overflow-auto">
+                      <thead>
+                        <tr>
+                          <th className="border p-3 text-left font-semibold">Role</th>
+                          {permissions
+                            .filter((perm) => perm.name !== "MANAGE_PERMISSION")
+                            .map((perm) => (
                               <th key={perm.id} className="border p-3 text-center font-semibold min-w-[120px]">
                                 <div className="flex flex-col items-center gap-1">
                                   <span className="text-xs">{perm.name}</span>
-                                  {has("MANAGE_PERMISSIONS") &&
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => deletePermission(perm.id)}
-                                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                  }
+                                  {has("MANAGE_PERMISSION") && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => deletePermission(perm.id)}
+                                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  )}
                                 </div>
                               </th>
                             ))}
-                            <th className="border p-3 text-center font-semibold">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {roles
-                            .filter((r) => r.deptId === dept.id)
-                            .map((role, idx) => (
-                              <tr
-                                key={role.id}
-                                className={idx % 2 === 0 ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-800"}
-                              >
-                                <td className="border p-3 font-medium">
-                                  <Badge className="bg-gradient-to-r from-teal-500 to-purple-500 text-white">
-                                    {role.name}
-                                  </Badge>
-                                </td>
-                                {permissions
-                                .filter((perm) => perm.name !== 'MANAGE_PERMISSION') // ■ exclude it
+                          <th className="border p-3 text-center font-semibold">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {roles
+                          .filter((r) => r.deptId === dept.id)
+                          .map((role, idx) => (
+                            <tr
+                              key={role.id}
+                              className={idx % 2 === 0 ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-800"}
+                            >
+                              <td className="border p-3 font-medium">
+                                <Badge className="bg-gradient-to-r from-teal-500 to-purple-500 text-white">
+                                  {role.name}
+                                </Badge>
+                              </td>
+                              {permissions
+                                .filter((perm) => perm.name !== "MANAGE_PERMISSION")
                                 .map((perm) => (
                                   <td key={perm.id} className="border p-3 text-center">
                                     <Checkbox
@@ -454,36 +457,32 @@ const deleteDept = (deptId: string) => {
                                       className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-teal-500 data-[state=checked]:to-purple-500"
                                     />
                                   </td>
-                              ))}
-
-                                <td className="border p-3 text-center">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => deleteRole(role.id)}
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-100"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </table>
-                    </div>
+                                ))}
+                              <td className="border p-3 text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteRole(role.id)}
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-100"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  </motion.div>
+</TabsContent>
 
-
-
-            
-          </CardContent>
-        </Card>
-      </motion.div>
-    </TabsContent>
           
 
           

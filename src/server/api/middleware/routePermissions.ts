@@ -17,10 +17,10 @@ const permissionRouteMap: Record<string, string[]> = {
     "perm.delete",
   ],
   MANAGE_CUSTOMER: [
-    "viewAnyProfile","editAnyProfile","signUpCustomer","searchCustomer","getAllCustomers",
-  ],
-  MANAG_EMPLOYEE: [
-    "viewAnyProfile","editAnyProfile","signUpEmployee","searchEmployee","getAllEmployees",
+    "user.viewAnyProfile","user.editAnyProfile","user.registerCustomer","user.searchCustomers","role.getAllRoles","dept.getAllDept",
+    ],
+  MANAGE_EMPLOYEE: [
+    "user.viewAnyProfile","user.editAnyProfile","user.registerEmployee","user.searchEmployees","role.getAllRoles","dept.getAllDept",
   ],
 };
 
