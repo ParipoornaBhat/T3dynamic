@@ -14,9 +14,9 @@ import type { Session } from "next-auth";
 import { useTheme } from "next-themes";
 import { useEffect ,useState} from "react";
 import { V } from "node_modules/framer-motion/dist/types.d-CtuPurYT";
-
-export default function HomePage({ session }: { session: Session | null }) {
-    const [videoLoaded, setVideoLoaded] = useState(false);
+import { useSession } from "next-auth/react";
+export default function HomePage() {
+const { data: session } = useSession()
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

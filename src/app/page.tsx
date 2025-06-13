@@ -7,7 +7,7 @@ export default async function Home() {
 
   return (
    
-      <HomePage session={session} />
+      <HomePage />
   
   );
 }
