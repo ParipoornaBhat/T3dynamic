@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "next build",
+     "build:ci": "next build --no-lint",
     "check": "next lint && tsc --noEmit",
     "db:generate": "prisma migrate dev",
     "db:migrate": "prisma migrate deploy",
