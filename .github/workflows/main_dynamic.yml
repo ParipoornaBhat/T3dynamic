@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js app to Azure Web App - Dynamic
 
 on:
@@ -10,10 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
-          
+
       - name: Create .env file from GitHub Secrets
         run: |
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env
@@ -32,39 +30,12 @@ jobs:
           echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
           echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
 
-      - name: npm install, build, and test
-        run: |
-          npm install
-          npm run build:ci
+      - name: Install dependencies
+        run: npm install
 
-      - name: Zip artifact for deployment
-        run: zip -r release.zip . -x "*.git*" "release.zip"
+      - name: Build Next.js app
+        run: npm run build:ci
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-app
-          path: release.zip
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: node-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -72,11 +43,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3B2410AD1C424FC895791B020EF76882 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD42639F7B9543C2AA9E5274FA8EF493 }}
 
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'Dynamic'
           slot-name: 'Production'
           package: .
-          
