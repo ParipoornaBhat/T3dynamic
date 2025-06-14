@@ -14,12 +14,13 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js version
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'
+          node-version: '20.x'
 
       - name: Create .env file from GitHub Secrets
         run: |
@@ -36,7 +37,7 @@ jobs:
       - name: Build Next.js app
         run: npm run build:ci
 
-      - name: Login to Azure
+      - name: Azure login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4D8D26D972E54AC8B24C0CD6E11E3954 }}
