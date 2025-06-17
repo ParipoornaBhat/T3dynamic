@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -15,33 +15,27 @@ import {
   CardContent,
 } from "@/app/_components/ui/card";
 
-export default function ResetPasswordPage() {
+function ResetPasswordInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
 
-  /* ───────────────── verify token on mount ───────────────── */
   const { data, isFetching } = api.pass.verifyResetToken.useQuery(
     { token },
-    { enabled: !!token, retry: false },
+    { enabled: !!token, retry: false }
   );
 
- useEffect(() => {
-  if (!isFetching && (!token || data?.valid === false)) {
-    document.cookie = [
-      "flash_error=Invalid or expired reset link.",
-      "max-age=10",
-      "path=/",
-    ].join("; ");
+  useEffect(() => {
+    if (!isFetching && (!token || data?.valid === false)) {
+      document.cookie = [
+        "flash_error=Invalid or expired reset link.",
+        "max-age=10",
+        "path=/",
+      ].join("; ");
+      window.location.href = "/auth/forgotpassword";
+    }
+  }, [data?.valid, isFetching, token, router]);
 
-    // Defer redirect slightly to allow cookie to persist
-            window.location.href = "/auth/forgotpassword";
-
-  }
-}, [data?.valid, isFetching, token, router]);
-
-
-  /* ───────────────── form state ───────────────── */
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
@@ -54,18 +48,8 @@ export default function ResetPasswordPage() {
   });
 
   if (isFetching || data?.valid === false) {
-    return null; // optional: spinner
+    return null;
   }
-
-  /* ───────────────── handle submit ───────────────── */
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirm) {
-      toast.error("Passwords do not match");
-      return;
-    }
-    resetMutation.mutate({ token, newPassword: password });
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-100 via-purple-100 to-orange-100 dark:from-teal-950 dark:via-purple-900 dark:to-orange-1000 p-4">
@@ -117,5 +101,23 @@ export default function ResetPasswordPage() {
         </Card>
       </motion.div>
     </div>
+  );
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (password !== confirm) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    resetMutation.mutate({ token, newPassword: password });
+  }
+}
+
+// ✅ Wrap in Suspense to avoid build error
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordInner />
+    </Suspense>
   );
 }
