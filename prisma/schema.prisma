@@ -168,22 +168,131 @@ model RolePermission {
 }
 
 // BOPP & PET Items
+enum YN {
+  YES
+  NO
+}
 
 model BOPPItem {
   id          String @id @default(cuid())
   name        String
-  documentUrl String? // Static file
+
+  type       String @default("BOPP") // Static type for BOPP items
+  description String?
+  billingName String? // Name used for billing purposes
+  brand       String? // Brand of the item
+  address     String? // Address associated with the item
+  GMS String? // Package Capacity
+
+  printingCheck Boolean @default(false) // Whether printing check is required
+  inspection1Check Boolean @default(false) // Whether inspection check is required
+  laminationCheck Boolean @default(false) // Whether lamination check is required
+  inspection2Check Boolean @default(false) // Whether inspection check is required
+  slittingCheck Boolean @default(false) // Whether slitting check is required
+  fabricLaminationCheck Boolean @default(false) // Whether fabric lamination check is required
+  cuttingAndStichingCheck Boolean @default(false) // Whether cutting and stitching check is required
+
+  printing_SizexMic String? // Size for printing
+  printing_MaterialType String? // Material type for printing
+  printing_Cylinder String? // Cylinder for printing
+  printing_CylinderDirection String? // Cylinder Direction for printing
+  printing_NoOfColours Int? // Number of colors for printing
+  printing_Colours String? // Colors used for printing
+  printing_Remarks String? // Remarks for printing
+
+  inspection1_Remarks String? // Remarks for inspection 1
+
+  lamination_SizexMic String? // Size for lamination
+  lamination_Type String? // Material type for lamination
+  lamination_Remarks String? // Remarks for lamination
+
+  inspection2_Remarks String? // Remarks for inspection 2
+
+  slitting_Remarks String? // Remarks for slitting
+
+  fabricLamination_Size String? // Size for fabric lamination
+  fabricLamination_MaterialType String? // Material type for fabric lamination
+  fabricLamination_Sides String? // Sides for fabric lamination
+  fabricLamination_Trimming YN? // Thickness for fabric lamination
+  fabricLamination_Remarks String? // Remarks for fabric lamination
+
+  cuttingAndStiching_Type String? // type reguler/gusset
+  cuttingAndStiching_Stiching YN? // Whether stitching is required
+  cuttingAndStiching_Perforation YN? // Whether perforation is required
+  cuttingAndStiching_ThreadColour String? // Thread color 
+  cuttingAndStiching_HandleType String? // Handle type
+  cuttingAndStiching_HandleColour String? // Handle color
+  cuttingAndStiching_Packing YN? // Whether packing is required
+  cuttingAndStiching_Remarks String? // Remarks for cutting and stitching
+
+  documentUrl String[] @default([]) // Static file
+  itemImagesUrls String[] @default([]) // Array of image URLs
+
   customerId  String
   customer    Customer @relation("UserBOPPItems",fields: [customerId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model PETItem {
   id          String @id @default(cuid())
   name        String
-  documentUrl String?
+
+   type       String @default("BOPP") // Static type for BOPP items
+  description String?
+  billingName String? // Name used for billing purposes
+  brand       String? // Brand of the item
+  address     String? // Address associated with the item
+  GMS String? // Package Capacity
+
+  printingCheck Boolean @default(false) // Whether printing check is required
+  inspectionCheck Boolean @default(false) // Whether inspection check is required
+  lamination1Check Boolean @default(false) // Whether lamination check is required
+  lamination2Check Boolean @default(false) // Whether lamination check is required
+  slittingCheck Boolean @default(false) // Whether slitting check is required
+  pouchingCheck Boolean @default(false) // Whether pouching check is required
+
+
+  printing_SizexMic String? // Size for printing
+  printing_MaterialType String? // Material type for printing
+  printing_Cylinder String? // Cylinder for printing
+  printing_CylinderDirection String? // Cylinder Direction for printing
+  printing_NoOfColours Int? // Number of colors for printing
+  printing_Colours String? // Colors used for printing
+  printing_Remarks String? // Remarks for printing
+
+  inspection_Remarks String? // Remarks for inspection 1
+
+  lamination1_SizexMic String? // Size for lamination
+  lamination1_Type String? // Material type for lamination
+  lamination1_Remarks String? // Remarks for lamination
+
+  lamination2_SizexMic String? // Size for lamination
+  lamination2_Type String? // Material type for lamination
+  lamination2_Remarks String? // Remarks for lamination
+
+
+  slitting_RollOrPouch String? // Size for fabric lamination
+  slitting_PartyRollDirection String? // Material type for fabric lamination
+  slitting_RollMax String? // Sides for fabric lamination
+  slitting_Extra1 String? // Thickness for fabric lamination
+  slitting_Remarks String? // Remarks for fabric lamination
+
+  pouching_CenterSeal String? // Center seal type
+  pouching_BottomTop String? // Side seal type
+  pouching_Zipper YN? // Whether zipper is required
+  pouching_VNotch YN? // Whether V-notch is required
+
+
+  documentUrl String[] @default([]) // Static file
+  itemImagesUrls String[] @default([]) // Array of image URLs
+
   customerId  String
   customer    Customer @relation("UserPETItems",fields: [customerId], references: [id])
   
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Orders

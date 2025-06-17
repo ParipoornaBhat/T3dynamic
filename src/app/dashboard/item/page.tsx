@@ -4,6 +4,8 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/_components/ui/card"
 import { Button } from "@/app/_components/ui/button"
 import { PlusCircle, Search, Filter, SortAsc, Upload } from "lucide-react"
+import { Sheet, SheetContent,SheetDescription, SheetTrigger } from "@/app/_components/ui/sheet";
+import {   SheetTitle } from "@/app/_components/ui/sheet"
 import {
   Dialog,
   DialogContent,
@@ -22,7 +24,7 @@ import { Badge } from "@/app/_components/ui/badge"
 import { ItemOrderingModal } from "@/app/_components/item-ordering-modal"
 import { ComponentLoading } from "@/app/_components/component-loading"
 import { motion } from "framer-motion"
-
+import BOPPItem from "./boppItem"
 type Item = {
   id: string
   name: string
@@ -289,6 +291,34 @@ export default function ItemManagementPage() {
                     />
                   </div>
                   <Dialog>
+  <DialogTrigger asChild>
+    <Button
+      size="sm"
+      onSelect={(e) => e.preventDefault()}
+      className="h-10 gap-1 bg-gradient-to-r from-teal-500 to-purple-500 text-white shadow transition-transform duration-200 hover:scale-[1.03] hover:shadow-md"
+    >
+      <PlusCircle className="h-3.5 w-3.5" />
+      <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add BOPP Item</span>
+    </Button>
+  </DialogTrigger>
+
+  <DialogContent
+    className="w-full sm:max-w-[95vw] md:max-w-[80vw] max-h-[90vh] overflow-y-auto bg-gradient-to-b from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900 p-4 sm:rounded-xl"
+  >
+    <DialogTitle className="sr-only">Add BOPP Item</DialogTitle>
+    <DialogDescription id="sheet-description" className="sr-only">
+      View and manage your profile details.
+    </DialogDescription>
+     <DialogHeader>
+                        <DialogTitle className="text-xl text-teal-700 dark:text-teal-300">Add New BOPP Item</DialogTitle>
+                        <DialogDescription>
+                          Fill in the details below to create a new BOPP item for your customer.
+                        </DialogDescription>
+                      </DialogHeader>
+    <BOPPItem />
+  </DialogContent>
+</Dialog>
+                  <Dialog>
                     <DialogTrigger asChild>
                       <Button
                         size="sm"
@@ -298,14 +328,14 @@ export default function ItemManagementPage() {
                         <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add New Item</span>
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto bg-gradient-to-br from-white to-teal-50 dark:from-gray-900 dark:to-teal-900">
+                    <DialogContent className="w-full sm:max-w-[700px] lg:w-[80%]  max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white to-teal-50 dark:from-gray-900 dark:to-teal-900">
                       <DialogHeader>
                         <DialogTitle className="text-teal-700 dark:text-teal-300">Add New Item</DialogTitle>
                         <DialogDescription>
                           Select a user or copy an existing item to create a new one.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="grid gap-4 py-4">
+                      <div className="w-full grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="user-search" className="text-right">
                             To Which User
@@ -489,96 +519,7 @@ export default function ItemManagementPage() {
                             </div>
                           </div>
 
-                          {/* Lamination Job Details */}
-                          <div className="grid gap-2 border p-3 rounded-md bg-gradient-to-r from-purple-100 to-teal-100 dark:from-purple-800 dark:to-teal-800">
-                            <h4 className="font-medium">Lamination</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="grid gap-2">
-                                <Label htmlFor="lamination-size-mat">Size x Material</Label>
-                                <Input id="lamination-size-mat" placeholder="e.g., 100x20" />
-                              </div>
-                              <div className="grid gap-2">
-                                <Label htmlFor="lamination-type">Type</Label>
-                                <Input id="lamination-type" placeholder="Lamination type" />
-                              </div>
-                              <div className="grid gap-2">
-                                <Label htmlFor="lamination-quantity">Quantity</Label>
-                                <Input id="lamination-quantity" type="number" />
-                              </div>
-                              <div className="grid gap-2 col-span-2">
-                                <Label htmlFor="lamination-remarks">Remarks (Optional)</Label>
-                                <Textarea id="lamination-remarks" placeholder="Any additional remarks for lamination" />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Inspection 2 Job Details (BOPP only) */}
-                          <div className="grid gap-2 border p-3 rounded-md bg-gradient-to-r from-teal-100 to-orange-100 dark:from-teal-800 dark:to-orange-800">
-                            <h4 className="font-medium">Inspection 2</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="flex items-center space-x-2">
-                                <Checkbox id="inspection2-yes-no" />
-                                <Label htmlFor="inspection2-yes-no">Yes/No</Label>
-                              </div>
-                              <div className="grid gap-2">
-                                <Label htmlFor="inspection2-roll-direction">Roll Direction (Optional)</Label>
-                                <Input id="inspection2-roll-direction" placeholder="Roll direction" />
-                              </div>
-                              <div className="grid gap-2 col-span-2">
-                                <Label htmlFor="inspection2-remarks">Remarks (Optional)</Label>
-                                <Textarea
-                                  id="inspection2-remarks"
-                                  placeholder="Any additional remarks for inspection 2"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Slitting Job Details */}
-                          <div className="grid gap-2 border p-3 rounded-md bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-800 dark:to-purple-800">
-                            <h4 className="font-medium">Slitting</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="flex items-center space-x-2">
-                                <Checkbox id="slitting-yes-no" />
-                                <Label htmlFor="slitting-yes-no">Yes/No</Label>
-                              </div>
-                              <div className="grid gap-2 col-span-2">
-                                <Label htmlFor="slitting-remarks">Remarks (Optional)</Label>
-                                <Textarea id="slitting-remarks" placeholder="Any additional remarks for slitting" />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Fabric Lamination Job Details */}
-                          <div className="grid gap-2 border p-3 rounded-md bg-gradient-to-r from-orange-100 to-teal-100 dark:from-orange-800 dark:to-teal-800">
-                            <h4 className="font-medium">Fabric Lamination</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="grid gap-2">
-                                <Label htmlFor="fabric-lam-size">Size</Label>
-                                <Input id="fabric-lam-size" placeholder="Size" />
-                              </div>
-                              <div className="grid gap-2">
-                                <Label htmlFor="fabric-lam-material-type">Material Type</Label>
-                                <Input id="fabric-lam-material-type" placeholder="Material type" />
-                              </div>
-                              <div className="grid gap-2">
-                                <Label htmlFor="fabric-lam-side">Single/Double Side</Label>
-                                <Select>
-                                  <SelectTrigger id="fabric-lam-side">
-                                    <SelectValue placeholder="Select side" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="single">Single</SelectItem>
-                                    <SelectItem value="double">Double</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Checkbox id="fabric-lam-trimming" />
-                                <Label htmlFor="fabric-lam-trimming">Trimming (Yes/No)</Label>
-                              </div>
-                            </div>
-                          </div>
+                        
 
                           {/* Cutting and Slitting Job Details */}
                           <div className="grid gap-2 border p-3 rounded-md bg-gradient-to-r from-teal-100 to-purple-100 dark:from-teal-800 dark:to-purple-800">

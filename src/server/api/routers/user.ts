@@ -431,7 +431,7 @@ viewProfile: protectedProcedure.query(async ({ ctx }) => {
   .input(
     z.object({
       search: z.string().optional(),
-      role: z.string().optional(), // allow filtering by role (e.g., AGENT, CUSTOMER)
+      role: z.string().optional(),
       sort: z.enum([
         "name-asc",
         "name-desc",
@@ -445,43 +445,35 @@ viewProfile: protectedProcedure.query(async ({ ctx }) => {
     })
   )
   .query(async ({ input, ctx }) => {
-    const {
-      search,
-      role,
-      sort = "name-asc",
-      page,
-      limit,
-    } = input;
+    const { search, role, sort = "name-asc", page, limit } = input;
 
     const whereClause: Prisma.UserWhereInput = {
       type: "CUSTOMER",
       ...(search && {
         OR: [
           { name: { contains: search, mode: "insensitive" } },
-          { email: { contains: search, mode: "insensitive" } },
+          { id: { contains: search, mode: "insensitive" } },
+          { phone: { contains: search, mode: "insensitive" } },
         ],
       }),
       ...(role && { role }),
     };
 
-    // Define a safe sort map
-   const orderByClause: Prisma.UserOrderByWithRelationInput = (() => {
-  if (sort === "name-asc") return { name: "asc" };
-  if (sort === "name-desc") return { name: "desc" };
-  if (sort === "email-asc") return { email: "asc" };
-  if (sort === "email-desc") return { email: "desc" };
-  if (sort === "createdAt-asc") return { createdAt: "asc" };
-  if (sort === "createdAt-desc") return { createdAt: "desc" };
+    const orderByClause: Prisma.UserOrderByWithRelationInput = (() => {
+      if (sort === "name-asc") return { name: "asc" };
+      if (sort === "name-desc") return { name: "desc" };
+      if (sort === "email-asc") return { email: "asc" };
+      if (sort === "email-desc") return { email: "desc" };
+      if (sort === "createdAt-asc") return { createdAt: "asc" };
+      if (sort === "createdAt-desc") return { createdAt: "desc" };
+      return { createdAt: "desc" };
+    })();
 
-  return { createdAt: "desc" }; // fallback
-})();
-
-    const [customers, totalCount] = await Promise.all([
+    const [rawCustomers, totalCount] = await Promise.all([
       ctx.db.user.findMany({
         where: whereClause,
         orderBy: orderByClause,
-        skip: (page - 1) * limit,
-        take: limit,
+        take: limit * 3, // overfetch for manual sort
         select: {
           id: true,
           name: true,
@@ -493,19 +485,42 @@ viewProfile: protectedProcedure.query(async ({ ctx }) => {
       ctx.db.user.count({ where: whereClause }),
     ]);
 
+    const searchLower = search?.toLowerCase() ?? "";
+
+    const sortedCustomers = rawCustomers.sort((a, b) => {
+      const fields = ["name", "phone", "id"] as const;
+
+      const score = (u: typeof a) => {
+        let starts = 0;
+        let includes = 0;
+        for (const field of fields) {
+          const val = u[field]?.toLowerCase() ?? "";
+          if (val.startsWith(searchLower)) starts += 1;
+          else if (val.includes(searchLower)) includes += 1;
+        }
+        // Higher starts first, then includes
+        return starts * 10 + includes;
+      };
+
+      return score(b) - score(a);
+    });
+
+    const paginated = sortedCustomers.slice((page - 1) * limit, page * limit);
+
     return {
-      profiles: customers.map((cust) => ({
+      profiles: paginated.map((cust) => ({
         id: cust.id,
         name: cust.name,
         email: cust.email,
         phone: cust.phone,
         type: cust.type,
-        role: "CUSTOMER", // fallback in case role is null
+        role: "CUSTOMER",
       })),
       totalCount,
       totalPages: Math.ceil(totalCount / limit),
     };
   }),
+
 
 
   // src/server/api/routers/profile.ts

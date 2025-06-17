@@ -3,7 +3,6 @@ import { useState, useEffect } from "react"
 import {
   Avatar,
   AvatarFallback,
-  AvatarImage,
 } from "@/app/_components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/_components/ui/card"
 import { Input } from "@/app/_components/ui/input"
@@ -14,6 +13,7 @@ import { useSession } from "next-auth/react"
 import { Checkbox } from "@/app/_components/ui/checkbox"
 import { format } from "date-fns"
 import { ComponentLoading } from "@/app/_components/component-loading"
+
 
 import { toast } from "sonner"
 export function AnyProfileCard({ userId }: { userId: string }) {
