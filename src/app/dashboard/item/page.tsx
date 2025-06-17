@@ -100,7 +100,7 @@ const initialItems: Item[] = [
         cylinderLocation: "Station A",
         numColors: 4,
         cylinderDirection: "Straight",
-        qtyPackSize: 1000,
+        qtyPackSize: 100550,
         output: 100000,
         remarks: "High quality print required",
       },
