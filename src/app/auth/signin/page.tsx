@@ -66,7 +66,9 @@ const [password, setPassword] = useState("");
         toast.error("An unexpected error occurred. Please try again later.")
       }
       return;
-    });
+    }).catch(() => {
+  toast.error("Something went wrong while signing in.");
+});
     console.log("Login attempt:", { email, password })
   } 
   const cardVariants = {

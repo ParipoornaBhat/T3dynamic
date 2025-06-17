@@ -3,12 +3,17 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { env } from "./env";
 
-// Utility to check permissions
-const hasPermissions = (token: any, requiredPermissions: string[]) => {
-  if (!token?.permissions || !Array.isArray(token.permissions)) return false;
-  return requiredPermissions.some((perm) => token.permissions.includes(perm));
-};
+// Define expected shape of token from NextAuth
+type TokenType = {
+  permissions?: string[];
+  role?: string;
+} | null;
 
+// Utility to check permissions
+const hasPermissions = (token: TokenType, requiredPermissions: string[]): boolean => {
+  if (!token?.permissions || !Array.isArray(token.permissions)) return false;
+  return requiredPermissions.some((perm) => token.permissions!.includes(perm));
+};
 
 // Utility to set flash error in cookie
 const setFlashError = (response: NextResponse, message: string) => {
@@ -17,12 +22,11 @@ const setFlashError = (response: NextResponse, message: string) => {
     path: "/",
     httpOnly: false,
   });
-
 };
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = await getToken({ req: request, secret: env.AUTH_SECRET });
+  const token = await getToken({ req: request, secret: env.AUTH_SECRET }) as TokenType;
 
   // Public routes
   const publicPaths = ["/", "/home", "/about", "/forgotpassword"];

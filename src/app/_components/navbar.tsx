@@ -2,36 +2,28 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/app/_components/ui/button";
-import { Input } from "@/app/_components/ui/input"
-import { Badge } from "@/app/_components/ui/badge"
 import { signOut } from "next-auth/react"
-import { toast } from "sonner"
-import { Search, ShoppingCart, User, Menu, Heart } from "lucide-react"
+import { User} from "lucide-react"
 import { FaHome, FaInfoCircle, FaBoxOpen, FaHistory, FaTachometerAlt } from "react-icons/fa";
 import { HiOutlineLogin } from "react-icons/hi";
 import { ProfileCard } from "./profile-card"
-import gsap from "gsap"
-import { AnimatePresence, motion } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/_components/ui/dropdown-menu";
 import { Sheet, SheetContent,SheetDescription, SheetTrigger } from "@/app/_components/ui/sheet";
 import {  SheetHeader, SheetTitle } from "@/app/_components/ui/sheet"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { ModeToggle } from "@/app/_components/ui/mode-toggle";
-import { FaCircleUser, FaCartShopping } from "react-icons/fa6";
+import { FaCircleUser } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react"
 import { useScrollDirection } from "@/app/_components/other/use-scroll-direction"; // Custom hook to detect scroll direction
 import { useTheme } from "next-themes";
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 
 
   
@@ -60,7 +52,6 @@ const [open, setOpen] = useState(false);
 useEffect(() => {
     console.log(open);
   }, [open]);//when ever opened or closed
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
 
   const scrollDirection = useScrollDirection();

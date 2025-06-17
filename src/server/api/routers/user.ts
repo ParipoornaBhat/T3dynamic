@@ -1,10 +1,9 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import {
   createTRPCRouter,
   protectedProcedure,
-  publicProcedure,
 } from "@/server/api/trpc";
 import { permissionMiddleware } from "@/server/api/middleware/permissions";
 
@@ -47,7 +46,7 @@ export const userRouter = createTRPCRouter({
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Transaction: update count + create user + create customer
-    const [_, newUser] = await ctx.db.$transaction([
+    const [, newUser] = await ctx.db.$transaction([
       ctx.db.dept.update({
         where: { id: dept.id },
         data: { memberCount: { increment: 1 } },
@@ -116,7 +115,7 @@ export const userRouter = createTRPCRouter({
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Run all in transaction
-    const [_, newUser] = await ctx.db.$transaction([
+    const [, newUser] = await ctx.db.$transaction([
       ctx.db.dept.update({
         where: { id: dept.id },
         data: { memberCount: { increment: 1 } },
@@ -279,7 +278,7 @@ viewProfile: protectedProcedure.query(async ({ ctx }) => {
     .mutation(async ({ ctx, input }) => {
       const { name, phone, brands, addresses, companyBilling } = input;
 
-      const updatedUser = await ctx.db.user.update({
+      await ctx.db.user.update({
         where: { id: ctx.session.user.id },
         data: {
           name: name ?? undefined,
@@ -524,7 +523,7 @@ searchEmployees: protectedProcedure
 )
 
  .query(async ({ input, ctx }) => {
- let {
+ const {
   search,
   role: rawRole,
   dept: rawDept,

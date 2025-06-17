@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { middleware } from "@/server/api/trpc";
 import { routePermissionMap } from "@/server/api/middleware/routePermissions";
 

@@ -2,7 +2,7 @@ import { z } from "zod";
 import crypto from "crypto";
 import { addMinutes, differenceInSeconds, subHours } from "date-fns";
 import { sendMail } from "@/lib/hooks/mailer";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import bcrypt from "bcryptjs";
 export const passRouter = createTRPCRouter({
 requestPasswordReset: publicProcedure

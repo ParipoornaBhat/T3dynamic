@@ -27,10 +27,8 @@ const permissionRouteMap: Record<string, string[]> = {
 export const routePermissionMap: Record<string, string[]> = {};
 
 for (const [permission, routes] of Object.entries(permissionRouteMap)) {
-  for (const route of routes) {
-    if (!routePermissionMap[route]) {
-      routePermissionMap[route] = [];
-    }
-    routePermissionMap[route]!.push(permission);
+  for (const route of routes) {  
+      routePermissionMap[route] ??= [];
+    routePermissionMap[route].push(permission);
   }
 }

@@ -10,10 +10,8 @@ import {
   CardTitle,
 } from "@/app/_components/ui/card";
 import { motion } from "framer-motion";
-import type { Session } from "next-auth";
 import { useTheme } from "next-themes";
-import { useEffect ,useState} from "react";
-import { V } from "node_modules/framer-motion/dist/types.d-CtuPurYT";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 export default function HomePage() {
 const { data: session } = useSession()
@@ -28,7 +26,6 @@ const { data: session } = useSession()
     },
   };
 const role = session?.user.role
-  const perms = session?.user.permissions ?? []
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {

@@ -4,6 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import { db } from "@/server/db";
 import bcrypt from "bcryptjs";
 import { signInSchema } from "@/lib/zod";
+import type { Adapter } from "next-auth/adapters";
 
 // --- Type augmentation ---
 declare module "next-auth" {
@@ -23,7 +24,7 @@ declare module "next-auth" {
 
 
 export const authConfig: NextAuthConfig = {
-  adapter: PrismaAdapter(db) as any,
+adapter: PrismaAdapter(db) as Adapter,
   providers: [
     Credentials({
       name: "Credentials",

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/_components/ui/card"
-import { ProfileCard } from "@/app/_components/profile-card"
 import { Input } from "@/app/_components/ui/input"
 import { Textarea } from "@/app/_components/ui/textarea"
 import { Button } from "@/app/_components/ui/button"
@@ -27,7 +26,7 @@ import {
 import { Label } from "@/app/_components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/_components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/_components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/_components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/app/_components/ui/avatar"
 import { ComponentLoading } from "@/app/_components/component-loading2"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
@@ -39,28 +38,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
+ 
   DropdownMenuTrigger,
 } from "@/app/_components/ui/dropdown-menu";
 import { Sheet, SheetContent,SheetDescription, SheetTrigger } from "@/app/_components/ui/sheet";
-import {  SheetHeader, SheetTitle } from "@/app/_components/ui/sheet"
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-type ProfileArray = {
-  id: string
-  name: string
-  email: string
-  phone: string
-  type: "CUSTOMER" | "EMPLOYEE"
-  role: "CUSTOMER" | {
-    name: string
-    dept: {
-      name: string
-      fullName: string
-    }
-  }
- 
-}
+import {   SheetTitle } from "@/app/_components/ui/sheet"
+
 type CustomerSortOption =
   | "name-asc"
   | "name-desc"
@@ -109,7 +92,7 @@ export default function AdminDashboardPage() {
   }
 
 const [searchTermCustomer, setSearchTermCustomer] = useState("");
-const [filterCustomerRole, setFilterCustomerRole] = useState(""); // if needed later
+const [filterCustomerRole,] = useState(""); // if needed later
 
 const [customerSort, setCustomerSort] = useState<CustomerSortOption>("name-asc");
 const [customerPage, setCustomerPage] = useState(1);
@@ -153,7 +136,7 @@ const [name, setName] = useState("");
       const selectedRole = allRoles.find((role) => role.id === roleId);
       if (selectedRole?.dept?.id) setDeptId(selectedRole.dept.id);
     }
-  }, [roleId]);
+  }, [roleId,allRoles, deptId]);
    const signUpEmployeeMutation = api.user.registerEmployee.useMutation({
     onSuccess: (data) => {
       toast.success(`Employee "${data.name}" registered successfully!`);

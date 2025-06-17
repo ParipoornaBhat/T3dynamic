@@ -18,7 +18,7 @@ import {
 function ResetPasswordInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
+  const token = searchParams.get("token") ?? "";
 
   const { data, isFetching } = api.pass.verifyResetToken.useQuery(
     { token },
