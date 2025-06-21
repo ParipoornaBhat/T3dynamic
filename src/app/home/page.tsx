@@ -87,26 +87,22 @@ const role = session?.user.role
       >
         <div className="max-w-4xl text-center space-y-6">
           <motion.h1
-  className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl bg-clip-text text-transparent 
-    dark:bg-gradient-to-r dark:from-teal-600 dark:via-purple-600 dark:to-amber-600 
-    bg-gradient-to-r from-teal-300 via-purple-200 to-amber-300"
-  style={{
-    WebkitTextStroke: "2px black",
-  }}
-  variants={itemVariants}
->
-  Premium Packaging That Elevates Your Brand
-</motion.h1>
-
+            className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl 
+              bg-clip-text text-transparent bg-gradient-to-r from-teal-300 via-purple-200 to-amber-300 
+              dark:bg-gradient-to-r dark:from-teal-600 dark:via-purple-600 dark:to-amber-600 
+              text-stroke-1 lg-text-stroke-2"
+            variants={itemVariants}
+          >
+            Premium Packaging That Elevates Your Brand
+          </motion.h1>
           <motion.p
-            className="text-lg text-muted-foreground md:text-xl"
-            style={{
-              WebkitTextStroke: "0.2px black",
-            }}
+            className="text-lg text-muted-foreground md:text-xl text-stroke-sm lg-text-stroke-sm"
             variants={itemVariants}
           >
             For over 25 years, Dynamic Packaging has been a trusted partner in high-quality, customized packaging that reflects your brand’s excellence.
           </motion.p>
+
+
           <motion.div
             className="flex flex-col gap-4 sm:flex-row justify-center"
             variants={itemVariants}

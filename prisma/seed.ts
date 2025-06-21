@@ -10,6 +10,45 @@ const generateId = (prefix: string, count: number) => {
 
 const main = async () => {
   try {
+    const BOPPoptions = [
+    {
+      name: 'Printing_MaterialType',
+      options: ['Plain', 'Matte'],
+    },
+    {
+      name: 'Lamination_Type',
+      options: ['X', 'Y'],
+    },
+    {
+      name: 'Fabric_Lamination_MaterialTypes',
+      options: ['A', 'B'],
+    },
+    {
+      name: 'Fabric_Lamination_Sides',
+      options: ['Front/Back', 'Single', 'Double'],
+    },
+    {
+      name: 'Cutting_Slitting_HandleTypes',
+      options: ['Ultrasonic Punch', 'Stitch', 'K', 'L'],
+    },
+    {
+      name: 'Cutting_Slitting_Type',
+      options: ['Regular', 'Gusset'],
+    },
+  ];
+
+  for (const field of BOPPoptions) {
+    await db.formField.upsert({
+      where: { name: `BOPP_${field.name}` },
+      update: { options: field.options },
+      create: {
+        name: `BOPP_${field.name}`,
+        options: field.options,
+      },
+    });
+  }
+
+  console.log('✅ BOPP form fields seeded.');
     // --- Create Departments ---
     const admDept = await db.dept.upsert({
       where: { name: 'ADM' },

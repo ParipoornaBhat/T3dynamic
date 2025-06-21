@@ -1,6 +1,7 @@
 "use client"
 
 import { useState,useEffect } from "react"
+import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/_components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/_components/ui/tabs"
 import { Label } from "@/app/_components/ui/label"
@@ -16,7 +17,10 @@ import { toast } from "sonner"
 import { api } from "@/trpc/react";
 import { ComponentLoading } from "@/app/_components/component-loading"
 import { useSession } from "next-auth/react"
-
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import { SortableItem } from "@/app/_components/ui/Sortableitems";
+import FormField from "./form"
 type Permission = {
   id: string;
   name: string;
@@ -49,6 +53,15 @@ type Dept = {
 };
 
 export default function SettingsPage() {
+
+  const searchParams = useSearchParams();
+const tabParam = searchParams.get("tab") || "permissions"; // fallback to "permissions"
+const [activeTab, setActiveTab] = useState(tabParam);
+useEffect(() => {
+  if (tabParam) setActiveTab(tabParam);
+}, [tabParam]);
+
+
   const { data: session } = useSession()
   const perms = session?.user.permissions ?? []
   const has = (perm: string) => perms.includes(perm)
@@ -271,7 +284,7 @@ const deleteDept = (deptId: string) => {
           Settings
         </motion.h1>
 
-        <Tabs defaultValue="permissions" className="w-full">
+<Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-auto grid-cols-4 bg-gradient-to-r from-teal-100 to-purple-100 dark:from-teal-800 dark:to-purple-800">
             <TabsTrigger
               value="permissions"
@@ -285,6 +298,12 @@ const deleteDept = (deptId: string) => {
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
             >
               Database
+            </TabsTrigger>
+            <TabsTrigger
+              value="formOptions"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-purple-500 data-[state=active]:text-white"
+            >
+              Form Options
             </TabsTrigger>
            {
 
@@ -522,6 +541,11 @@ const deleteDept = (deptId: string) => {
               </Card>
             </motion.div>
           </TabsContent>
+ <TabsContent value="formOptions">
+  <motion.div variants={itemVariants}>
+    <FormField/>
+  </motion.div>
+</TabsContent>
 
          
         </Tabs>

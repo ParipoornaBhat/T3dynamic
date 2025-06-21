@@ -41,12 +41,14 @@ import {
   User,
   ChevronDown,
   Home,
+  Package as Item,
   ShieldCheck,
 } from "lucide-react";
 
 const menuItems = [
   { title: "Overview", url: "/dashboard", icon: Home },
   { title: "Users", url: "/dashboard/alluser", icon: Users },
+  { title: "Items", url: "/dashboard/item", icon: Plus },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
@@ -172,6 +174,21 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                             Overview
                           </span></span></SidebarMenuButton></Link>
                   </SidebarMenuItem>
+                  <SidebarMenuItem key="Items">
+                    <Link href={"/dashboard/item"} onClick={handleLinkClick} className="block">
+                      <SidebarMenuButton asChild isActive={pathname === "/dashboard/item"}                      
+                        >
+                        {/* the Link is the child because we passed asChild above */}
+                       <span className="flex items-center w-full px-3 py-2">
+                        <Item className="h-5 w-5 flex-shrink-0" />
+                          <span className={cn("inline overflow-hidden whitespace-nowrap","transition-all duration-500 ease-in-out",
+                            open || isMobile                     // ⬅ sidebar state
+                              ? "ml-3 max-w-[200px] opacity-100 delay-300"
+                              : " ml-0 max-w-0    opacity-0   delay-0")}>
+                            Item Management
+                          </span></span></SidebarMenuButton></Link>
+                  </SidebarMenuItem>
+
                                 {(has("MANAGE_CUSTOMER") || has("MANAGE_EMPLOYEE")) &&
                   <SidebarMenuItem key="Users">
                     <Link href={ "/dashboard/alluser"} onClick={handleLinkClick} className="block">

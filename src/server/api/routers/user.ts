@@ -521,6 +521,114 @@ viewProfile: protectedProcedure.query(async ({ ctx }) => {
     };
   }),
 
+searchCustomers_Item: protectedProcedure
+  .input(
+    z.object({
+      search: z.string().optional(),
+      role: z.string().optional(),
+      sort: z.enum([
+        "name-asc",
+        "name-desc",
+        "email-asc",
+        "email-desc",
+        "createdAt-asc",
+        "createdAt-desc",
+      ]).optional(),
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(100).default(10),
+    })
+  )
+  .query(async ({ input, ctx }) => {
+    const { search, role, sort = "name-asc", page, limit } = input;
+
+    const whereClause: Prisma.UserWhereInput = {
+      type: "CUSTOMER",
+      ...(search && {
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { id: { contains: search, mode: "insensitive" } },
+          { phone: { contains: search, mode: "insensitive" } },
+        ],
+      }),
+      ...(role && { role }),
+    };
+
+    const orderByClause: Prisma.UserOrderByWithRelationInput = (() => {
+      if (sort === "name-asc") return { name: "asc" };
+      if (sort === "name-desc") return { name: "desc" };
+      if (sort === "email-asc") return { email: "asc" };
+      if (sort === "email-desc") return { email: "desc" };
+      if (sort === "createdAt-asc") return { createdAt: "asc" };
+      if (sort === "createdAt-desc") return { createdAt: "desc" };
+      return { createdAt: "desc" };
+    })();
+
+    const [rawCustomers, totalCount] = await Promise.all([
+      ctx.db.user.findMany({
+        where: whereClause,
+        orderBy: orderByClause,
+        take: limit * 3,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          type: true,
+          customer: {
+            select: {
+              id: true,
+              companyBilling: true,
+              brands: true,
+              addresses: true,
+              totalItemsBOPP: true,
+              totalItemsPET: true,
+            },
+          },
+        },
+      }),
+      ctx.db.user.count({ where: whereClause }),
+    ]);
+
+    const searchLower = search?.toLowerCase() ?? "";
+
+    const sortedCustomers = rawCustomers.sort((a, b) => {
+      const fields = ["name", "phone", "id"] as const;
+
+      const score = (u: typeof a) => {
+        let starts = 0;
+        let includes = 0;
+        for (const field of fields) {
+          const val = u[field]?.toLowerCase() ?? "";
+          if (val.startsWith(searchLower)) starts += 1;
+          else if (val.includes(searchLower)) includes += 1;
+        }
+        return starts * 10 + includes;
+      };
+
+      return score(b) - score(a);
+    });
+
+    const paginated = sortedCustomers.slice((page - 1) * limit, page * limit);
+
+    return {
+      profiles: paginated.map((cust) => ({
+        id: cust.id,
+        name: cust.name,
+        email: cust.email,
+        phone: cust.phone,
+        type: cust.type,
+        role: "CUSTOMER",
+        customerId: cust.customer!.id,
+        companyBilling: cust.customer?.companyBilling ?? [],
+        brands: cust.customer?.brands ?? [],
+        addresses: cust.customer?.addresses ?? [],
+        totalItemsBOPP: cust.customer?.totalItemsBOPP ?? 0,
+        totalItemsPET: cust.customer?.totalItemsPET ?? 0,
+      })),
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+    };
+  }),
 
 
   // src/server/api/routers/profile.ts

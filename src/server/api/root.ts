@@ -3,8 +3,8 @@ import { roleRouter } from "@/server/api/routers/roles";
 import { permRouter } from "@/server/api/routers/perm";
 import { deptRouter } from "@/server/api/routers/dept";
 import { passRouter } from "@/server/api/routers/passwordreset";
-
-
+import { boppItemRouter } from "@/server/api/routers/boppitem";
+import {formFieldRouter} from "@/server/api/routers/formField";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -18,6 +18,8 @@ export const appRouter = createTRPCRouter({
   perm: permRouter,
   dept: deptRouter,
   pass: passRouter,
+  boppItem: boppItemRouter,
+  formField: formFieldRouter,
 });
 
 // export type definition of API

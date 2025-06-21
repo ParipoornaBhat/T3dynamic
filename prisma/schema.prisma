@@ -14,6 +14,13 @@ datasource db {
 // ===================
 // MODELS
 // ===================
+model FormField {
+  name     String   @id           // Acts as both unique name and ID
+  options  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 
 model Account {
   id                       String   @id @default(cuid())
@@ -51,7 +58,15 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
 model Notification {
   id        String   @id @default(cuid())
   message   String
@@ -92,15 +107,7 @@ model Employee {
   assignedBOPPSubJobs BOPPSubJob[] @relation("UserAssignedBOPPSubJobs")   
   assignedPETSubJobs  PETSubJob[]  @relation("UserAssignedPETSubJobs") 
 }
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
+
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -177,6 +184,7 @@ model BOPPItem {
   id          String @id @default(cuid())
   name        String
 
+
   type       String @default("BOPP") // Static type for BOPP items
   description String?
   billingName String? // Name used for billing purposes
@@ -190,7 +198,7 @@ model BOPPItem {
   inspection2Check Boolean @default(false) // Whether inspection check is required
   slittingCheck Boolean @default(false) // Whether slitting check is required
   fabricLaminationCheck Boolean @default(false) // Whether fabric lamination check is required
-  cuttingAndStichingCheck Boolean @default(false) // Whether cutting and stitching check is required
+  cuttingAndStitchingCheck Boolean @default(false) // Whether cutting and stitching check is required
 
   printing_SizexMic String? // Size for printing
   printing_MaterialType String? // Material type for printing
@@ -216,18 +224,20 @@ model BOPPItem {
   fabricLamination_Trimming YN? // Thickness for fabric lamination
   fabricLamination_Remarks String? // Remarks for fabric lamination
 
-  cuttingAndStiching_Type String? // type reguler/gusset
-  cuttingAndStiching_Stiching YN? // Whether stitching is required
-  cuttingAndStiching_Perforation YN? // Whether perforation is required
-  cuttingAndStiching_ThreadColour String? // Thread color 
-  cuttingAndStiching_HandleType String? // Handle type
-  cuttingAndStiching_HandleColour String? // Handle color
-  cuttingAndStiching_Packing YN? // Whether packing is required
-  cuttingAndStiching_Remarks String? // Remarks for cutting and stitching
+  cuttingAndStitching_Type String? // type reguler/gusset
+  cuttingAndStitching_Stitching YN? // Whether stitching is required
+  cuttingAndStitching_Perforation YN? // Whether perforation is required
+  cuttingAndStitching_ThreadColour String? // Thread color 
+  cuttingAndStitching_HandleType String? // Handle type
+  cuttingAndStitching_HandleColour String? // Handle color
+  cuttingAndStitching_Packing YN? // Whether packing is required
+  cuttingAndStitching_Remarks String? // Remarks for cutting and stitching
 
   documentUrl String[] @default([]) // Static file
   itemImagesUrls String[] @default([]) // Array of image URLs
 
+  userName    String // Name of the user who created the item
+  userId      String
   customerId  String
   customer    Customer @relation("UserBOPPItems",fields: [customerId], references: [id])
 
@@ -235,11 +245,13 @@ model BOPPItem {
   updatedAt   DateTime @updatedAt
 }
 
+
+
 model PETItem {
   id          String @id @default(cuid())
   name        String
 
-   type       String @default("BOPP") // Static type for BOPP items
+  type       String @default("BOPP") // Static type for BOPP items
   description String?
   billingName String? // Name used for billing purposes
   brand       String? // Brand of the item
@@ -288,6 +300,7 @@ model PETItem {
   documentUrl String[] @default([]) // Static file
   itemImagesUrls String[] @default([]) // Array of image URLs
 
+  userId      String
   customerId  String
   customer    Customer @relation("UserPETItems",fields: [customerId], references: [id])
   

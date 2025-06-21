@@ -20,6 +20,11 @@ export const env = createEnv({
     EMAIL_FROM: z.string().email(),
     FRONTEND_URL: z.string().url(),
 
+    CLOUDINARY_CLOUD_NAME: z.string(),
+    CLOUDINARY_API_KEY: z.string(),
+    CLOUDINARY_API_SECRET: z.string(),
+
+
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -48,6 +53,10 @@ export const env = createEnv({
     EMAIL_PASS: process.env.EMAIL_PASS,
     EMAIL_FROM: process.env.EMAIL_FROM,
     FRONTEND_URL: process.env.FRONTEND_URL,
+
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 
     NODE_ENV: process.env.NODE_ENV,
   },
