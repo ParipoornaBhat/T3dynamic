@@ -184,7 +184,7 @@ model BOPPItem {
   id          String @id @default(cuid())
   name        String
 
-
+  banner  String? // Banner for image
   type       String @default("BOPP") // Static type for BOPP items
   description String?
   billingName String? // Name used for billing purposes
@@ -253,6 +253,8 @@ model PETItem {
 
   type       String @default("BOPP") // Static type for BOPP items
   description String?
+  banner  String? // Banner for image
+
   billingName String? // Name used for billing purposes
   brand       String? // Brand of the item
   address     String? // Address associated with the item
@@ -301,6 +303,7 @@ model PETItem {
   itemImagesUrls String[] @default([]) // Array of image URLs
 
   userId      String
+  userName    String // Name of the user who created the item
   customerId  String
   customer    Customer @relation("UserPETItems",fields: [customerId], references: [id])
   

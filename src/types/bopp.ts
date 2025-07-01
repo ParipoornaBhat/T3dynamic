@@ -54,6 +54,8 @@ export type BOPPItemForm = {
 
   documentUrl: string[];
   itemImagesUrls: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
 
   userName: string;
   userId: string;
