@@ -50,9 +50,6 @@ const [isOpen, setIsOpen] = useState(false);
   const logoSrc = isDark ? "/d_l.png" : "/d_l.png";
 
 const [open, setOpen] = useState(false);
-useEffect(() => {
-    console.log(open);
-  }, [open]);//when ever opened or closed
 
 
   const scrollDirection = useScrollDirection();

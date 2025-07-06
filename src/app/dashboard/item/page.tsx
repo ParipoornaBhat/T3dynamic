@@ -302,6 +302,7 @@ const [downloadId, setDownloadId] = useState<string | null>(null)
                       width={300}
                       height={400}
                       className="object-contain w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      priority 
                     />
 
                     <Badge className="absolute bottom-2 left-2 bg-gradient-to-r from-teal-500 to-purple-500 text-white px-2 py-1 rounded-md text-xs font-semibold">

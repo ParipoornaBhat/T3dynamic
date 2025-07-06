@@ -89,7 +89,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       {/* ──────────────── SIDEBAR ──────────────── */}
       <Sidebar className="bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         {/* header */}
-        <SidebarHeader className="border-b border-gray-200 p-4">
+        <SidebarHeader className="border-b border-gray-200 p-3">
           <div className="flex items-center gap-1">
               <Image
                 src="/d_l2.png"
@@ -98,9 +98,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
                 height={32}
                 className="h-12 w-auto"
                 priority
-              />
-            
-             
+              />             
   <span
   className={cn(
     "ml-3 inline-block overflow-hidden whitespace-nowrap transition-all duration-500 ease-in-out",
@@ -144,7 +142,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 </div>
 
 
-          <SidebarGroup>
+          <SidebarGroup >
             
               <SidebarGroupLabel
  className={cn(

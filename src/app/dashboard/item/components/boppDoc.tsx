@@ -56,209 +56,41 @@ function generatePDFHTML(itemData: BOPPItemForm): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BOPP Item Specification - ${itemData.id}</title>
 <style>
-  @page { size: A4; margin: 15mm; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: Arial, sans-serif;
-    font-size: 13px; /* Increased */
-    line-height: 1.5;
-    color: #000;
-  }
-
-  .container {
-    width: 100%;
-    max-width: 180mm;
-    margin: 0 auto;
-    border: 2px solid #000;
-    padding: 6px; /* reduced */
-  }
-
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-    padding-bottom: 2px; /* reduced */
-    border-bottom: 1px solid #000;
-  }
-
-  .logo-section {
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    font-size: 19px; /* Increased */
-  }
-
-  .gms-section {
-    text-align: center;
-    border: 1px solid #000;
-    padding: 4px;
-    background: #f0f0f0;
-    min-width: 120px;
-  }
-
-  .gms-title {
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 2px;
-  }
-
-  .gms-value {
-    font-size: 17px;
-    font-weight: bold;
-  }
-
-  .main-content {
-    display: flex;
-    margin-bottom: 6px;
-  }
-
-  .left-section {
-    flex: 2;
-    margin-right: 6px;
-  }
-
-  .right-section {
-    flex: 1;
-    border: 1px solid #000;
-    background: #f9f9f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    max-height: 200px;
-    overflow: hidden;
-  }
-
-  .right-section img {
-    max-height: 100%;
-    max-width: 100%;
-    object-fit: contain;
-    height: auto;
-    width: auto;
-  }
-
-  .image-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    font-size: 15px;
-    color: #666;
-    text-align: center;
-  }
-
-  .info-table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #000;
-  }
-
-  .info-table td {
-    border: 1px solid #000;
-    padding: 2px 4px; /* reduced */
-    vertical-align: top;
-  }
-
-  .label {
-    background: #f0f0f0;
-    font-weight: bold;
-    width: 25%;
-    font-size: 12px;
-  }
-
-  .value {
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .job-title {
-    text-align: center;
-    font-size: 21px;
-    font-weight: bold;
-    margin: 8px 0;
-    text-decoration: underline;
-  }
-
-  .job-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .job-row {
-    display: flex;
-    gap: 6px;
-  }
-
-  .job-row > .job-section {
-    flex: 1;
-  }
-
-  .job-section {
-    border: 1px solid #000;
-  }
-
-  .section-header {
-    background: #e0e0e0;
-    padding: 2px;
-    font-weight: bold;
-    font-size: 13px;
-    text-align: center;
-    border-bottom: 1px solid #000;
-  }
-
-  .section-content {
-    padding: 2px;
-  }
-
-  .field-row {
-    display: flex;
-    margin-bottom: 2px;
-    font-size: 11px;
-  }
-
-  .field-label {
-    background: #f5f5f5;
-    padding: 1px 2px;
-    border: 1px solid #ccc;
-    font-weight: bold;
-    font-size: 10px;
-    flex: 0 0 120px;
-  }
-
-  .field-value {
-    padding: 1px 2px;
-    border: 1px solid #ccc;
-    flex: 1;
-    font-size: 11px;
-    font-weight: bold;
-  }
-
-  .remarks {
-    margin-top: 2px;
-    font-size: 10px;
-  }
-
-  .remarks-label {
-    font-weight: bold;
-    display: inline;
-  }
-
-  .small-section {
-    margin-bottom: 3px;
-  }
-
-  .small-section .section-header {
-    font-size: 12px;
-    padding: 1px 2px;
-  }
-
-  .small-section .section-content {
-    padding: 1px;
-  }
+@page { size: A4; margin: 15mm; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.5; color: #000; }
+.container { width: 100%; max-width: 180mm; margin: 0 auto; border: 2px solid #000; padding: 6px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding-bottom: 2px; border-bottom: 1px solid #000; }
+.logo-section { display: flex; align-items: center; font-weight: bold; font-size: 19px; }
+.gms-section { text-align: center; border: 1px solid #000; padding: 4px; background: #f0f0f0; min-width: 120px; }
+.gms-title { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+.gms-value { font-size: 17px; font-weight: bold; }
+.main-content { display: flex; margin-bottom: 6px; }
+.left-section { flex: 2; margin-right: 6px; }
+.right-section { flex: 1; border: 1px solid #000; background: #f9f9f9; display: flex; align-items: center; justify-content: center; padding: 0; overflow: hidden; }
+.right-section img { max-height: 100%; max-width: 100%; object-fit: contain; height: auto; width: auto; }
+.image-placeholder { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 15px; color: #666; text-align: center; }
+.info-table { width: 100%; border-collapse: collapse; border: 1px solid #000; }
+.info-table td { border: 1px solid #000; padding: 2px 4px; vertical-align: top; }
+.label { background: #f0f0f0; font-weight: bold; width: 25%; font-size: 12px; }
+.value { font-size: 12px; font-weight: bold; }
+.job-title { text-align: center; font-size: 21px; font-weight: bold; margin: 8px 0; text-decoration: underline; }
+.job-sections { display: flex; flex-direction: column; gap: 6px; }
+.job-row { display: flex; gap: 6px; }
+.job-row > .job-section { flex: 1; }
+.job-section { border: 1px solid #000; }
+.section-header { background: #e0e0e0; padding: 2px; font-weight: bold; font-size: 13px; text-align: center; border-bottom: 1px solid #000; }
+.section-content { padding: 2px; }
+.field-row { display: flex; margin-bottom: 2px; font-size: 11px; }
+.field-label { background: #f5f5f5; padding: 1px 2px; border: 1px solid #ccc; font-weight: bold; font-size: 10px; flex: 0 0 120px; }
+.field-value { padding: 1px 2px; border: 1px solid #ccc; flex: 1; font-size: 11px; font-weight: bold; }
+.remarks { margin-top: 2px; font-size: 10px; }
+.remarks-label { font-weight: bold; display: inline; }
+.small-section { margin-bottom: 3px; }
+.small-section .section-header { font-size: 12px; padding: 1px 2px; }
+.small-section .section-content { padding: 1px; }
 </style>
+
 
 
 
@@ -388,6 +220,19 @@ function generatePDFHTML(itemData: BOPPItemForm): string {
       </div>
     </div>
   </div>
+  <script>
+  window.addEventListener("load", function () {
+    const table = document.querySelector(".left-section .info-table");
+    const right = document.querySelector(".right-section");
+    if (table && right) {
+      const tableHeight = table.offsetHeight;
+      right.style.maxHeight = tableHeight + "px";
+    }
+  });
+</script>
+
+
+
 </body>
 </html>`;
 }

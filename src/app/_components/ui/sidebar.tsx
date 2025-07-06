@@ -5,6 +5,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { X, PanelLeft } from "lucide-react";
+import { useMounted } from "@/app/_components/ui/mounted"; // adjust path as needed
 
 /* -------------------------------------------------------------------------- */
 /*                                CONTEXT                                     */
@@ -65,8 +66,9 @@ SidebarProvider.displayName = "SidebarProvider";
 
 export const Sidebar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, children, ...props }, ref) => {
+     const mounted = useMounted();
     const { open, setOpen, isMobile } = useSidebar();
-
+    if (!mounted) return null;
     return (
       <>
         {isMobile && open && (
@@ -76,19 +78,19 @@ export const Sidebar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
         <div
   ref={ref}
   className={cn(
-    "flex h-full flex-col border-r bg-background transition-all duration-450 ease-in",
-    /* desktop positioning */
-    "md:relative",
-    /* desktop width toggle */
-    open ? "md:w-[280px]" : "md:w-[75px]",
-    /* mobile positioning */
-"",
-    "fixed inset-y-0 left-0  z-50 w-[280px]"
-,
-    /* mobile slide transition */
-    `${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`,
-    className
-  )}
+  "flex h-full flex-col border-r bg-background transition-all duration-450 ease-in",
+
+  // ✅ MOBILE positioning and slide
+  "fixed inset-y-0 left-0 z-50 w-[280px]",
+  open ? "translate-x-0" : "-translate-x-full",
+
+  // ✅ DESKTOP positioning
+  "md:relative md:translate-x-0 md:flex md:sticky md:top-0 md:z-40 md:h-screen",
+  open ? "md:w-[280px]" : "md:w-[75px]",
+
+  className
+)}
+
   {...props}
 >
 
