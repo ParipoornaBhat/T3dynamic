@@ -46,7 +46,8 @@ const [isOpen, setIsOpen] = useState(false);
     setIsDark(theme === 'dark' || resolvedTheme === 'dark');
   }, [theme, resolvedTheme]);
 
-  const logoSrc = isDark ? "/t_dark.png" : "/t_light.png";
+  //const logoSrc = isDark ? "/t_dark.png" : "/t_light.png";
+  const logoSrc = isDark ? "/d_l.png" : "/d_l.png";
 
 const [open, setOpen] = useState(false);
 useEffect(() => {

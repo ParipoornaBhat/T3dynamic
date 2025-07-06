@@ -90,13 +90,13 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
       <Sidebar className="bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         {/* header */}
         <SidebarHeader className="border-b border-gray-200 p-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
               <Image
-                src="/title.png"
+                src="/d_l2.png"
                 alt="Logo"
                 width={180}
                 height={32}
-                className="h-10 w-auto"
+                className="h-12 w-auto"
                 priority
               />
             

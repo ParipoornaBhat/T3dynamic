@@ -10,7 +10,7 @@ import { toast } from "sonner"
 import {
   Search_Div,
 Image_Checkbox_AllFields,
-} from "./FormFields";
+} from "@/app/dashboard/item/components/FormFields";
 
 const BOPPItem = () => {
   const defaultBOPPItem: BOPPItemForm = {

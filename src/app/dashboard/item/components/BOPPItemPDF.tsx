@@ -202,8 +202,13 @@ export function BOPPItemPDF({ itemData }: BOPPItemPDFProps) {
               <div class="logo-section">
 
 <div class="logo-wrapper">
-  <img src="/t_light.png" alt="Logo" class="logo-image" />
+  <img
+    src="/t_light.png"
+    alt="Logo"
+    style="width: auto; height: 50; object-fit: contain;"
+  />
 </div>
+
               </div>
               <div class="gms-section">
                   <div class="gms-title">GMS (PACKAGE<br>CAPACITY)</div>

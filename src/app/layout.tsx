@@ -18,7 +18,7 @@ export default function RootLayout({
      <html lang="en" suppressHydrationWarning>
        <head>
         <title>Dynamic Packaging | Tumkur, Karnataka, India | Packaging |</title>
-        <link rel="icon" href="/title.png" type="image/png" />
+        <link rel="icon" href="/d_l2.png" type="image/png" />
         {/* You can also add meta tags here if needed */}
       </head>
       <body >
