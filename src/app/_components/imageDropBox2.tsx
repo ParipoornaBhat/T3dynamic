@@ -126,11 +126,11 @@ export default function ImageDropBox({
     <div>
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition ${
+        className={`border-2 border-dashed rounded-md p-6 text-center transition ${
           isDragActive
             ? "border-purple-500 bg-purple-50"
             : "border-gray-300 dark:border-gray-700"
-        } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+        } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
       >
         <input {...getInputProps()} />
         <p className="text-gray-600 dark:text-gray-300">
@@ -216,8 +216,13 @@ function SortableImageCard({
       )}
 
       <div className="w-full aspect-[3/4] bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md overflow-hidden relative">
-        <Image src={src} alt={`preview-${id}`} fill className="object-contain" />
-      </div>
+<Image
+  src={src}
+  alt={`preview-${id}`}
+  fill
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+  className="object-contain"
+/>      </div>
 
       {!disabled && (
         <p className="text-xs mt-1 text-center text-gray-500 dark:text-gray-400 truncate max-w-full px-1">

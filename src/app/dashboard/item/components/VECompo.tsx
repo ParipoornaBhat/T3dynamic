@@ -201,7 +201,6 @@ const [changeEnabled, setChangeEnabled] = useState(false);
       className="w-full max-w-md"
     >
       <Label className="text-lg font-semibold text-gray-800 dark:text-white">
-        Select a Customer to which the item will be added/updated to:
       </Label>
 
       {/* Change Button for Edit Mode */}

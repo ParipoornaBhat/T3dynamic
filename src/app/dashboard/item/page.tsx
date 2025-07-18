@@ -165,7 +165,7 @@ const [downloadId, setDownloadId] = useState<string | null>(null)
       },
     },
   }
-
+const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-teal-50 via-purple-50 to-orange-50 dark:from-teal-900 dark:via-purple-900 dark:to-orange-900">
       <motion.div
@@ -370,12 +370,12 @@ const [downloadId, setDownloadId] = useState<string | null>(null)
                             Delete Item
                           </DropdownMenuItem>
                          <DropdownMenuItem
-                          onClick={() => setItemDetailOpen(true)}
-                          className="w-full cursor-pointer text-blue-600 dark:text-blue-400"
-                        >
-                          <Pencil className="h-3.5 w-3.5 mr-1" />
-                          <span>View/Edit Item</span>
-                        </DropdownMenuItem>
+                            onClick={() => setSelectedItemId(item.id)}
+                            className="w-full cursor-pointer text-blue-600 dark:text-blue-400"
+                          >
+                            <Pencil className="h-3.5 w-3.5 mr-1" />
+                            <span>View/Edit Item</span>
+                          </DropdownMenuItem>
 
       
                           <DropdownMenuItem
@@ -386,17 +386,7 @@ const [downloadId, setDownloadId] = useState<string | null>(null)
 
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      <Dialog open={itemDetailOpen} onOpenChange={setItemDetailOpen}>
-                      <DialogContent
-                        className="w-full h-full sm:max-w-[95vw] md:max-w-[80vw] max-h-[90vh] overflow-y-auto bg-gradient-to-b from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900 p-4 sm:rounded-xl"
-                      >
-                        <DialogTitle className="sr-only">View/Edit Item</DialogTitle>
-                        <DialogDescription id="sheet-description" className="sr-only">
-                          View and Edit your Item details.
-                        </DialogDescription>
-                        <ItemViewEdit itemId={item.id} />
-                      </DialogContent>
-                    </Dialog>
+                      
                     </div>
                   </CardHeader>
 
@@ -412,6 +402,17 @@ const [downloadId, setDownloadId] = useState<string | null>(null)
                 </Card>
               </motion.div>
             ))}
+            <Dialog open={!!selectedItemId} onOpenChange={(open) => !open && setSelectedItemId(null)}>
+  <DialogContent aria-describedby={undefined}
+    className="w-full h-full sm:max-w-[95vw] md:max-w-[80vw] max-h-[90vh] overflow-y-auto bg-gradient-to-b from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900 p-4 sm:rounded-xl"
+  >
+    <DialogTitle className="sr-only">View/Edit Item</DialogTitle>
+    <DialogDescription id="sheet-description" className="sr-only">
+      View and Edit your Item details.
+    </DialogDescription>
+    {selectedItemId && <ItemViewEdit itemId={selectedItemId} />}
+  </DialogContent>
+</Dialog>
             <Pagination>
             <PaginationContent>
               <PaginationItem>
