@@ -28,6 +28,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/_components/ui/tabs"
 import { Avatar, AvatarFallback } from "@/app/_components/ui/avatar"
 import { ComponentLoading } from "@/app/_components/component-loading2"
+import { ComponentLoading as ComponentLoading2 } from "@/app/_components/component-loading"
+import { ComponentLoading as ComponentLoading3 } from "@/app/_components/component-loading3"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { api } from "@/trpc/react"
@@ -56,7 +58,7 @@ type EmployeeSortOption = "name-asc" | "name-desc" | "email-asc" | "email-desc" 
   | "createdAt-desc" | undefined;
 
 export default function AdminDashboardPage() {
-  const { data: session } = useSession()
+  const { data: session ,status } = useSession()
   const perms = session?.user.permissions ?? []
   const has = (perm: string) => perms.includes(perm)
 
@@ -70,8 +72,8 @@ export default function AdminDashboardPage() {
 
   const employeeLimit = 10
 
-  const { data: allRoles = [] } = api.role.getAllRoles.useQuery()
-  const { data: allDepts = [] } = api.dept.getAllDept.useQuery()
+  const { data: allRoles = [] , isLoading: isLoadingRoles } = api.role.getAllRoles.useQuery()
+  const { data: allDepts = [] , isLoading: isLoadingDepts } = api.dept.getAllDept.useQuery()
 
   const { data: employeeData, isLoading: isSearchingEmployees } =
     api.user.searchEmployees.useQuery({
@@ -302,6 +304,9 @@ const handleArrayChange = (
         duration: 0.2,
       },
     },
+  }
+  if (status === "loading") {
+    return <ComponentLoading2 message="Loading dashboard..." />
   }
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-teal-50 via-purple-50 to-orange-50 dark:from-teal-900 dark:via-purple-900 dark:to-orange-900">
