@@ -56,7 +56,7 @@ export const boppItemRouter = createTRPCRouter({
       fabricLamination_Remarks: z.string().optional(),
 
       cuttingAndStitching_Type: z.string().optional(),
-      cuttingAndStitching_Stiching: z.enum(["YES", "NO"]).optional(),
+      cuttingAndStitching_Stitching: z.enum(["YES", "NO"]).optional(),
       cuttingAndStitching_Perforation: z.enum(["YES", "NO"]).optional(),
       cuttingAndStitching_ThreadColour: z.string().optional(),
       cuttingAndStitching_HandleType: z.string().optional(),
@@ -74,7 +74,7 @@ export const boppItemRouter = createTRPCRouter({
   )
   .mutation(async ({ input, ctx }) => {
   const { customerId } = input;
-
+    console.log("Creating BOPP item with input:", input);
   const customer = await ctx.db.customer.findUnique({
     where: { id: customerId },
     select: { totalItemsBOPP: true },
@@ -104,7 +104,8 @@ export const boppItemRouter = createTRPCRouter({
     },
   });
   console.log("image url",newItem.itemImagesUrls);
-
+  
+  console.log("document url",newItem);
   // 4. Return the final item (with document URL)
   return {
     newItem
@@ -264,7 +265,7 @@ delete: protectedProcedure
     return { success: true, message: `Item ${itemId} deleted successfully` };
   }),
 
-getAnyBoppItem: protectedProcedure
+getAnyBoppItemDetail: protectedProcedure
   .input(
     z.object({
       itemId: z.string().min(1),
@@ -343,6 +344,106 @@ getAnyBoppItem: protectedProcedure
 }
 
 
-  })
+  }),
+
+    // Get single item details
+  getAnyBoppItemDetail2: protectedProcedure
+    .input(z.object({ itemId: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const { itemId } = input;
+      const item = await ctx.db.bOPPItem.findUnique({ where: { id: itemId } });
+      if (!item) throw new Error("Item not found");
+      return {
+        id: item.id,
+        name: item.name,
+        banner: item.banner ?? "",
+        type: item.type ?? "BOPP",
+        description: item.description ?? "",
+        billingName: item.billingName ?? "",
+        brand: item.brand ?? "",
+        address: item.address ?? "",
+        GMS: item.GMS ?? "",
+
+        printingCheck: item.printingCheck ?? true,
+        inspection1Check: item.inspection1Check ?? true,
+        laminationCheck: item.laminationCheck ?? true,
+        inspection2Check: item.inspection2Check ?? true,
+        slittingCheck: item.slittingCheck ?? true,
+        fabricLaminationCheck: item.fabricLaminationCheck ?? true,
+        cuttingAndStitchingCheck: item.cuttingAndStitchingCheck ?? true,
+
+        printing_SizexMic: item.printing_SizexMic ?? "",
+        printing_MaterialType: item.printing_MaterialType ?? "",
+        printing_Cylinder: item.printing_Cylinder ?? "",
+        printing_CylinderDirection: item.printing_CylinderDirection ?? "",
+        printing_NoOfColours: item.printing_NoOfColours ?? undefined,
+        printing_Colours: item.printing_Colours ?? "",
+        printing_Remarks: item.printing_Remarks ?? "",
+
+        inspection1_Remarks: item.inspection1_Remarks ?? "",
+
+        lamination_SizexMic: item.lamination_SizexMic ?? "",
+        lamination_Type: item.lamination_Type ?? "",
+        lamination_Remarks: item.lamination_Remarks ?? "",
+
+        inspection2_Remarks: item.inspection2_Remarks ?? "",
+
+        slitting_Remarks: item.slitting_Remarks ?? "",
+
+        fabricLamination_Size: item.fabricLamination_Size ?? "",
+        fabricLamination_MaterialType: item.fabricLamination_MaterialType ?? "",
+        fabricLamination_Sides: item.fabricLamination_Sides ?? "",
+        fabricLamination_Trimming: item.fabricLamination_Trimming as YN ?? undefined,
+        fabricLamination_Remarks: item.fabricLamination_Remarks ?? "",
+
+        cuttingAndStitching_Type: item.cuttingAndStitching_Type ?? "",
+        cuttingAndStitching_Stitching: item.cuttingAndStitching_Stitching as YN ?? undefined,
+        cuttingAndStitching_Perforation: item.cuttingAndStitching_Perforation as YN ?? undefined,
+        cuttingAndStitching_ThreadColour: item.cuttingAndStitching_ThreadColour ?? "",
+        cuttingAndStitching_HandleType: item.cuttingAndStitching_HandleType ?? "",
+        cuttingAndStitching_HandleColour: item.cuttingAndStitching_HandleColour ?? "",
+        cuttingAndStitching_Packing: item.cuttingAndStitching_Packing as YN ?? undefined,
+        cuttingAndStitching_Remarks: item.cuttingAndStitching_Remarks ?? "",
+
+        documentUrl: item.documentUrl ?? [],
+        itemImagesUrls: item.itemImagesUrls ?? [],
+
+        userName: item.userName ?? "",
+        userId: item.userId ?? "",
+        customerId: item.customerId ?? "",
+      };
+    }),
+
+  // Save edited item
+  saveAnyBoppItemDetail: protectedProcedure
+    .input(z.object({
+      itemId: z.string(),
+      data: z.any(), // Use zod type matching your form if available
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { itemId, data } = input;
+
+      // Handle image changes:
+      // Compare existing vs new images
+      const existingItem = await ctx.db.bOPPItem.findUnique({ where: { id: itemId } });
+      if (!existingItem) throw new Error("Item not found for update");
+
+      const removedCloudImages = existingItem.itemImagesUrls.filter(
+        (url) => !data.itemImagesUrls.includes(url)
+      );
+
+      const addedFiles = data.itemImagesUrls.filter(
+        (url: string) => !existingItem.itemImagesUrls.includes(url)
+      );
+
+      // Optional: remove deleted images from Cloudinary here if needed
+
+      const updated = await ctx.db.bOPPItem.update({
+        where: { id: itemId },
+        data,
+      });
+
+      return { updated, addedFiles, removedCloudImages };
+    }),
 
 });

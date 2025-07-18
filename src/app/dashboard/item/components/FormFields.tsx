@@ -54,6 +54,7 @@ type Props = {
   boppItem: BOPPItemForm;
   setBoppItem: React.Dispatch<React.SetStateAction<BOPPItemForm>>;
   getOptions: (fieldName: string) => string[];
+  disabled?: boolean;
 };
 // 💡 Tailwind className constants
 const containerClass = "w-[90%] space-y-1 border rounded-md p-2 bg-gray-50 dark:bg-gray-900";
@@ -703,7 +704,7 @@ export const Image_Checkbox_AllFields = ({ boppItem, setBoppItem, getOptions, se
 
 
 // 1. Printing Card
-export const PrintingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
+export const PrintingCard = ({ boppItem, setBoppItem, getOptions, disabled = false }: Props) => {
   return (
      <div className={containerClass}>
     <h2 className={sectionHeadingClass}>Printing</h2>
@@ -721,6 +722,7 @@ export const PrintingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
           printing_SizexMic: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
 
     {/* Material Type */}
@@ -734,7 +736,7 @@ export const PrintingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Select Material Type" />
   </SelectTrigger>
   <SelectContent>
@@ -757,7 +759,7 @@ export const PrintingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Select Cylinder" />
   </SelectTrigger>
   <SelectContent>
@@ -780,7 +782,7 @@ export const PrintingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Select Cylinder Direction" />
   </SelectTrigger>
   <SelectContent>
@@ -803,7 +805,7 @@ export const PrintingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Select Number of Colours" />
   </SelectTrigger>
   <SelectContent>
@@ -830,6 +832,7 @@ export const PrintingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
           printing_Colours: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
 
     {/* Printing Remark */}
@@ -845,13 +848,14 @@ export const PrintingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
           printing_Remarks: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
   </div>
   );
 };
 
 // 2. Inspection 1 Card
-export const Inspection1Card = ({ boppItem, setBoppItem }: Props) => {
+export const Inspection1Card = ({ boppItem, setBoppItem,disabled = false }: Props) => {
   return (
     <div className={containerClass}>
     <h2 className={sectionHeadingClass}>Inspection 1</h2>
@@ -868,13 +872,14 @@ export const Inspection1Card = ({ boppItem, setBoppItem }: Props) => {
           inspection1_Remarks: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
   </div>
   );
 };
 
 // 3. Lamination Card
-export const LaminationCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
+export const LaminationCard = ({ boppItem, setBoppItem, getOptions,disabled = false }: Props) => {
   return (
    <div className={containerClass}>
     <h2 className={sectionHeadingClass}>Lamination</h2>
@@ -892,6 +897,7 @@ export const LaminationCard = ({ boppItem, setBoppItem, getOptions }: Props) => 
           lamination_SizexMic: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
 
     {/* Lamination Type (from form options) */}
@@ -904,7 +910,7 @@ export const LaminationCard = ({ boppItem, setBoppItem, getOptions }: Props) => 
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Select Lamination Type" />
   </SelectTrigger>
   <SelectContent>
@@ -931,13 +937,14 @@ export const LaminationCard = ({ boppItem, setBoppItem, getOptions }: Props) => 
           lamination_Remarks: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
   </div>
   );
 };
 
 // 4. Inspection 2 Card
-export const Inspection2Card = ({ boppItem, setBoppItem }: Props) => {
+export const Inspection2Card = ({ boppItem, setBoppItem,disabled = false }: Props) => {
   return (
     <div className={containerClass}>
     <h2 className={sectionHeadingClass}>Inspection 2</h2>
@@ -954,13 +961,14 @@ export const Inspection2Card = ({ boppItem, setBoppItem }: Props) => {
           inspection2_Remarks: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
   </div>
   );
 };
 
 // 5. Slitting Card
-export const SlittingCard = ({ boppItem, setBoppItem }: Props) => {
+export const SlittingCard = ({ boppItem, setBoppItem,disabled = false }: Props) => {
   return (
     <div className={containerClass}>
     <h2 className={sectionHeadingClass}>Slitting</h2>
@@ -977,13 +985,14 @@ export const SlittingCard = ({ boppItem, setBoppItem }: Props) => {
           slitting_Remarks: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
   </div>
   );
 };
 
 // 6. Fabric Lamination Card
-export const FabricLaminationCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
+export const FabricLaminationCard = ({ boppItem, setBoppItem, getOptions, disabled = false }: Props) => {
   return (
    <div className={containerClass}>
        <h2 className={sectionHeadingClass}>Fabric Lamination</h2>
@@ -1001,6 +1010,7 @@ export const FabricLaminationCard = ({ boppItem, setBoppItem, getOptions }: Prop
              fabricLamination_Size: e.target.value,
            }))
          }
+         disabled={ disabled }
        />
    
       {/* Material Type */}
@@ -1013,7 +1023,7 @@ export const FabricLaminationCard = ({ boppItem, setBoppItem, getOptions }: Prop
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Select Material Type" />
   </SelectTrigger>
   <SelectContent>
@@ -1036,7 +1046,7 @@ export const FabricLaminationCard = ({ boppItem, setBoppItem, getOptions }: Prop
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Select Sides" />
   </SelectTrigger>
   <SelectContent>
@@ -1059,7 +1069,7 @@ export const FabricLaminationCard = ({ boppItem, setBoppItem, getOptions }: Prop
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Trimming" />
   </SelectTrigger>
   <SelectContent>
@@ -1084,13 +1094,14 @@ export const FabricLaminationCard = ({ boppItem, setBoppItem, getOptions }: Prop
              fabricLamination_Remarks: e.target.value,
            }))
          }
+         disabled={ disabled }
        />
      </div>
   );
 };
 
 // 7. Cutting And Stitching Card
-export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: Props) => {
+export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions, disabled = false }: Props) => {
   return (
    <div className={containerClass}>
     <h2 className={sectionHeadingClass}>Cutting and Slitting</h2>
@@ -1104,7 +1115,7 @@ export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: P
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Cutting and stitching Type" />
   </SelectTrigger>
   <SelectContent>
@@ -1129,7 +1140,7 @@ export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: P
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Stitching" />
   </SelectTrigger>
   <SelectContent>
@@ -1149,7 +1160,7 @@ export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: P
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Perforation" />
   </SelectTrigger>
   <SelectContent>
@@ -1174,6 +1185,7 @@ export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: P
           cuttingAndStitching_ThreadColour: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
 
     {/* Handle Type */}
@@ -1186,7 +1198,7 @@ export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: P
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Handle Type" />
   </SelectTrigger>
   <SelectContent>
@@ -1213,6 +1225,7 @@ export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: P
           cuttingAndStitching_HandleColour: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
 
     {/* Packing */}
@@ -1225,7 +1238,7 @@ export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: P
     }))
   }
 >
-  <SelectTrigger className={selectTriggerClass}>
+  <SelectTrigger className={selectTriggerClass} disabled={ disabled }>
     <SelectValue placeholder="Packing" />
   </SelectTrigger>
   <SelectContent>
@@ -1250,6 +1263,7 @@ export const CuttingAndStitchingCard = ({ boppItem, setBoppItem, getOptions }: P
           cuttingAndStitching_Remarks: e.target.value,
         }))
       }
+      disabled={ disabled }
     />
   </div>
   );

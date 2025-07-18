@@ -5,13 +5,14 @@ import { toast } from "sonner"
 import { api } from "@/trpc/react"
 import type { BOPPItemForm } from "@/types/bopp"
 import { useEffect } from "react"
-
+import { Button } from "@/app/_components/ui/button"
 interface Props {
   itemId: string
+  menu?: boolean
 }
 
-export function DownloadPDFButton({ itemId }: Props) {
-  const { refetch } = api.boppItem.getAnyBoppItem.useQuery(
+export function DownloadPDFButton({ itemId, menu = true }: Props) {
+  const { refetch } = api.boppItem.getAnyBoppItemDetail.useQuery(
     { itemId },
     { enabled: false }
   )
@@ -42,11 +43,26 @@ export function DownloadPDFButton({ itemId }: Props) {
     }, 500)
   }
 
-  return (
+  return menu ? (
     <DropdownMenuItem onClick={handleDownload} className="w-full cursor-pointer">
       Download PDF
     </DropdownMenuItem>
+  ) : (
+    <Button variant="outline" onClick={handleDownload}>
+      Download PDF
+    </Button>
   )
+}
+function renderStatusIcon(status?: boolean) {
+  const commonStyle = `font-size:25px;position:absolute;width:16px;height:16px;line-height:1;top:-3px`;
+
+  if (status === true) {
+    return `&nbsp;&nbsp;&nbsp;<span style="color:green;${commonStyle}">✔</span>&nbsp;&nbsp;&nbsp;`;
+  }
+  if (status === false) {
+    return `&nbsp;&nbsp;&nbsp;<span style="color:red;${commonStyle}">✘</span>&nbsp;&nbsp;&nbsp;`;
+  }
+  return "";
 }
 function generatePDFHTML(itemData: BOPPItemForm): string {
   return `<!DOCTYPE html>
@@ -67,19 +83,21 @@ body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.5; color:
 .gms-value { font-size: 17px; font-weight: bold; }
 .main-content { display: flex; margin-bottom: 6px; }
 .left-section { flex: 2; margin-right: 6px; }
-.right-section { flex: 1; border: 1px solid #000; background: #f9f9f9; display: flex; align-items: center; justify-content: center; padding: 0; overflow: hidden; }
+.right-section { flex: 1; border: 1px solid #000; background: #f9f9f9; display: flex; align-items: center; justify-content: center; padding: 0; overflow: hidden;position: relative; max-height: 200px; }
 .right-section img { max-height: 100%; max-width: 100%; object-fit: contain; height: auto; width: auto; }
+.right-section::after { content: ""; position: absolute; inset: 0; background-image: url('/d_l.png'); background-repeat: repeat; background-size: 120px auto; opacity: 0.2; pointer-events: none; filter: grayscale(1); transform: rotate(-30deg); mix-blend-mode: multiply; z-index: 2; }
 .image-placeholder { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 15px; color: #666; text-align: center; }
 .info-table { width: 100%; border-collapse: collapse; border: 1px solid #000; }
 .info-table td { border: 1px solid #000; padding: 2px 4px; vertical-align: top; }
 .label { background: #f0f0f0; font-weight: bold; width: 25%; font-size: 12px; }
+.banner { font-size: 12px; font-weight: bold; color: #d9534f; background-color: #f0f0f0;  border-radius: 4px; display: inline-block; }
 .value { font-size: 12px; font-weight: bold; }
 .job-title { text-align: center; font-size: 21px; font-weight: bold; margin: 8px 0; text-decoration: underline; }
 .job-sections { display: flex; flex-direction: column; gap: 6px; }
 .job-row { display: flex; gap: 6px; }
 .job-row > .job-section { flex: 1; }
 .job-section { border: 1px solid #000; }
-.section-header { background: #e0e0e0; padding: 2px; font-weight: bold; font-size: 13px; text-align: center; border-bottom: 1px solid #000; }
+.section-header { background: #e0e0e0; padding: 2px; font-weight: bold; font-size: 13px; text-align: center; border-bottom: 1px solid #000; position:relative; }
 .section-content { padding: 2px; }
 .field-row { display: flex; margin-bottom: 2px; font-size: 11px; }
 .field-label { background: #f5f5f5; padding: 1px 2px; border: 1px solid #ccc; font-weight: bold; font-size: 10px; flex: 0 0 120px; }
@@ -89,6 +107,7 @@ body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.5; color:
 .small-section { margin-bottom: 3px; }
 .small-section .section-header { font-size: 12px; padding: 1px 2px; }
 .small-section .section-content { padding: 1px; }
+.status-icon {font-size: 12px; font-weight: bold; margin-left: 4px;}
 </style>
 
 
@@ -118,32 +137,43 @@ body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.5; color:
 <tr>
   <td class="label">Description</td>
   <td class="value">
-    ${itemData.description}<br />
-    <small>
-      Created At: ${itemData.createdAt
-        ? new Date(itemData.createdAt).toLocaleString("en-IN", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true
-          })
-        : "N/A"}
-    </small><br />
-    <small>
-      Updated At: ${itemData.updatedAt
-        ? new Date(itemData.updatedAt).toLocaleString("en-IN", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true
-          })
-        : "N/A"}
-    </small>
-  </td>
+  ${itemData.description?.trim()
+    ? itemData.description
+    : "<em style='color:gray;'>No Description</em>"}
+  <br />
+  <span class="banner">
+    ${itemData.banner?.trim()
+      ? itemData.banner
+      : "<em style='color:gray;'>No Banner</em>"}
+  </span>
+  <br />
+  <small>
+    Created At: ${itemData.createdAt
+      ? new Date(itemData.createdAt).toLocaleString("en-IN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "N/A"}
+  </small>
+  <br />
+  <small>
+    Updated At: ${itemData.updatedAt
+      ? new Date(itemData.updatedAt).toLocaleString("en-IN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "N/A"}
+  </small>
+</td>
+
 </tr>
       <tr><td class="label">Customer Name</td><td class="value">${itemData.billingName}</td></tr>
       <tr><td class="label">Brand Name</td><td class="value">${itemData.brand}</td></tr>
@@ -171,32 +201,23 @@ body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.5; color:
           { label: "Cylinder Direction", value: itemData.printing_CylinderDirection ?? "" },
           { label: "No. Of Colour", value: itemData.printing_NoOfColours?.toString() ?? "" },
           { label: "Colours Name", value: itemData.printing_Colours ?? "" },
-        ], itemData.printing_Remarks)}
+        ], itemData.printing_Remarks, itemData.printingCheck)}
 
         <div class="job-section">
-          <div class="small-section">
-            <div class="section-header">INSPECTION 1</div>
-            <div class="section-content">
-              <div class="remarks"><span class="remarks-label">Remarks:</span> ${itemData.inspection1_Remarks || ""}</div>
-            </div>
-          </div>
-          <div class="small-section">
-            <div class="section-header">LAMINATION (LAM)</div>
-            <div class="section-content">
-              ${generateFieldRows([
-                { label: "SizexMic", value: itemData.lamination_SizexMic ?? "" },
-                { label: "Lamination Type", value: itemData.lamination_Type ?? "" }
-              ])}
-              <div class="remarks"><span class="remarks-label">Remarks:</span> ${itemData.lamination_Remarks || ""}</div>
-            </div>
-          </div>
+          ${generateSmallSection("INSPECTION 1", itemData.inspection1_Remarks, itemData.inspection1Check)}
+
+          ${generateSection("LAMINATION (LAM)", [
+            { label: "SizexMic", value: itemData.lamination_SizexMic ?? "" },
+            { label: "Lamination Type", value: itemData.lamination_Type ?? "" }
+          ], itemData.lamination_Remarks, itemData.laminationCheck)}
+
         </div>
       </div>
 
       <!-- Row 2 -->
       <div class="job-row">
-        ${generateSmallSection("SLITTING", itemData.slitting_Remarks)}
-        ${generateSmallSection("INSPECTION 2", itemData.inspection2_Remarks)}
+      ${generateSmallSection("SLITTING", itemData.slitting_Remarks, itemData.slittingCheck)}
+      ${generateSmallSection("INSPECTION 2", itemData.inspection2_Remarks, itemData.inspection2Check)}
       </div>
 
       <!-- Row 3 -->
@@ -206,7 +227,7 @@ body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.5; color:
           { label: "Material type", value: itemData.fabricLamination_MaterialType ?? "" },
           { label: "Sides", value: itemData.fabricLamination_Sides ?? "" },
           { label: "Trimming", value: itemData.fabricLamination_Trimming ?? "" }
-        ], itemData.fabricLamination_Remarks)}
+        ], itemData.fabricLamination_Remarks, itemData.fabricLaminationCheck)}
 
         ${generateSection("CUTTING AND STITCHING", [
           { label: "Type", value: itemData.cuttingAndStitching_Type ?? "" },
@@ -216,7 +237,7 @@ body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.5; color:
           { label: "Handle Type", value: itemData.cuttingAndStitching_HandleType ?? "" },
           { label: "Handle Colour", value: itemData.cuttingAndStitching_HandleColour ?? "" },
           { label: "Packing", value: itemData.cuttingAndStitching_Packing ?? "" }
-        ], itemData.cuttingAndStitching_Remarks)}
+        ], itemData.cuttingAndStitching_Remarks, itemData.cuttingAndStitchingCheck)}
       </div>
     </div>
   </div>
@@ -240,26 +261,35 @@ body { font-family: Arial, sans-serif; font-size: 13px; line-height: 1.5; color:
 function generateSection(
   title: string,
   fields: { label: string; value: string }[],
-  remarks?: string
+  remarks?: string,
+  status?: boolean
 ) {
   return `
     <div class="job-section">
-      <div class="section-header">${title}</div>
-      <div class="section-content">
-        ${generateFieldRows(fields)}
-        <div class="remarks"><span class="remarks-label">Remarks:</span> ${remarks || ""}</div>
-      </div>
+      <div class="section-header">${title} ${renderStatusIcon(status)}</div>
+      ${
+        status
+          ? `<div class="section-content">
+              ${generateFieldRows(fields)}
+              <div class="remarks"><span class="remarks-label">Remarks:</span> ${remarks || ""}</div>
+            </div>`
+          : ""
+      }
     </div>`;
 }
 
-function generateSmallSection(title: string, remarks?: string) {
+function generateSmallSection(title: string, remarks?: string, status?: boolean) {
   return `
     <div class="job-section">
       <div class="small-section">
-        <div class="section-header">${title}</div>
-        <div class="section-content">
-          <div class="remarks"><span class="remarks-label">Remarks:</span> ${remarks || ""}</div>
-        </div>
+        <div class="section-header">${title} ${renderStatusIcon(status)}</div>
+        ${
+          status
+            ? `<div class="section-content">
+                <div class="remarks"><span class="remarks-label">Remarks:</span> ${remarks || ""}</div>
+              </div>`
+            : ""
+        }
       </div>
     </div>`;
 }

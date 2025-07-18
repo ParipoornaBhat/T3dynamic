@@ -24,4 +24,12 @@ export const uploadToCloudinaryBOPP = (
     streamifier.createReadStream(buffer).pipe(stream);
   });
 };
+export const deleteFromCloudinaryBOPP = (publicId: string): Promise<{ result: string }> => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(`bopp-items/${publicId}`, (err, result) => {
+      if (err || !result) return reject(err);
+      resolve({ result: result.result }); // e.g., "ok"
+    });
+  });
+};
 

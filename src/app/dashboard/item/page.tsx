@@ -1,5 +1,5 @@
 "use client"
-import {DownloadPDFButton} from "./components/boppDoc"
+import {DownloadPDFButton} from "@/app/dashboard/item/components/boppDoc"
 import { useState } from "react"
 import {
   Pagination,
@@ -11,9 +11,8 @@ import {
 } from "@/app/_components/ui/pagination"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/_components/ui/card"
 import { Button } from "@/app/_components/ui/button"
-import { PlusCircle, Search, Filter, SortAsc, Upload } from "lucide-react"
-import { Sheet, SheetContent,SheetDescription, SheetTrigger } from "@/app/_components/ui/sheet";
-import {   SheetTitle } from "@/app/_components/ui/sheet"
+import { PlusCircle, Search, Filter, SortAsc, Upload, Pencil } from "lucide-react"
+import  ItemViewEdit  from "@/app/dashboard/item/components/viewOrEdit"
 import { MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
@@ -45,6 +44,8 @@ import BOPPItem from "@/app/dashboard/item/components/boppItem"
 import {type BOPPItemForm,type YN, type SelectedCustomer} from "@/types/bopp"
 import { toast } from "sonner"
 export default function ItemManagementPage() {
+
+   const [itemDetailOpen, setItemDetailOpen] = useState(false);
   const utils = api.useUtils();
  // 1. Declare your strict union types
 type ItemType = "BOPP" | "PET" | "All";
@@ -360,16 +361,42 @@ const [downloadId, setDownloadId] = useState<string | null>(null)
                           className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                         >
                           <DownloadPDFButton itemId={item.id} />
+                          {/* Download PDF Button */}
 
                           <DropdownMenuItem
-            onClick={() => handleDelete(item.id)}
-            className="w-full cursor-pointer text-red-600 dark:text-red-400"
-          >
-            Delete Item
-          </DropdownMenuItem>
+                            onClick={() => handleDelete(item.id)}
+                            className="w-full cursor-pointer text-red-600 dark:text-red-400"
+                          >
+                            Delete Item
+                          </DropdownMenuItem>
+                         <DropdownMenuItem
+                          onClick={() => setItemDetailOpen(true)}
+                          className="w-full cursor-pointer text-blue-600 dark:text-blue-400"
+                        >
+                          <Pencil className="h-3.5 w-3.5 mr-1" />
+                          <span>View/Edit Item</span>
+                        </DropdownMenuItem>
+
+      
+                          <DropdownMenuItem
+                            className="w-full cursor-pointer text-blue-600 dark:text-blue-400"
+                          >
+                            Order Item
+                          </DropdownMenuItem>
 
                         </DropdownMenuContent>
                       </DropdownMenu>
+                      <Dialog open={itemDetailOpen} onOpenChange={setItemDetailOpen}>
+                      <DialogContent
+                        className="w-full h-full sm:max-w-[95vw] md:max-w-[80vw] max-h-[90vh] overflow-y-auto bg-gradient-to-b from-teal-50 to-purple-50 dark:from-teal-900 dark:to-purple-900 p-4 sm:rounded-xl"
+                      >
+                        <DialogTitle className="sr-only">View/Edit Item</DialogTitle>
+                        <DialogDescription id="sheet-description" className="sr-only">
+                          View and Edit your Item details.
+                        </DialogDescription>
+                        <ItemViewEdit itemId={item.id} />
+                      </DialogContent>
+                    </Dialog>
                     </div>
                   </CardHeader>
 

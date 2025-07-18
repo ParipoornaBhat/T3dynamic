@@ -216,8 +216,23 @@ const getOptions = (fieldName: string) => {
       },
     },
   }
-const createBoppItem = api.boppItem.create.useMutation();
 
+const createBoppItem = api.boppItem.create.useMutation({
+  onMutate: () => {
+    toast.loading("Creating BOPP item...", { id: "create-bopp" });
+  },
+  onSuccess: (data) => {
+    toast.success("✅ BOPP item created successfully!", { id: "create-bopp" });
+
+    // Optional: reset form or navigate
+    // resetForm();
+    // router.push(`/bopp/${data.id}`);
+  },
+  onError: (error) => {
+    console.error("Error creating BOPP item:", error);
+    toast.error(`❌ Failed to create BOPP item`, { id: "create-bopp" });
+  },
+});
 const handleSubmit = async () => {
   if (!validateBoppItem(boppItem)) return;
   try {
@@ -236,12 +251,12 @@ const handleSubmit = async () => {
     if (!uploadRes.ok) throw new Error("Image upload failed");
 
     // Save to DB
+    console.log("Saving BOPP item:", { ...updatedBoppItem, itemImagesUrls: urls });
     await createBoppItem.mutateAsync({
       ...updatedBoppItem,
       itemImagesUrls: urls,
     });
 
-    toast.success("Item created successfully!");
     setBoppItem(defaultBOPPItem);
     setImages([]);
     setSelectedCustomer(defaultSelectedCustomer);

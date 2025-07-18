@@ -31,19 +31,21 @@ export default function RootLayout({
               <Navbar /> {/* Passing session to Navbar */}
               <main className="flex-1">{children}</main>
               <WhatsAppButton />
-                <Toaster
-            position="top-right"
-            richColors
-            closeButton
-            toastOptions={{
-              className: "mt-11 sm:mt-11 md:mt-10  bg-white text-gray-800 shadow-lg dark:bg-gray-800 dark:text-gray-200",
-              style: {
-                borderRadius: "8px",
-                padding: "16px",
-                fontSize: "14px",
-              },
-            }}
-          />
+               <Toaster
+  position="top-right"
+  richColors
+  closeButton
+  toastOptions={{
+    className:
+      "pointer-events-auto mt-11 sm:mt-11 md:mt-10 bg-white text-gray-800 shadow-lg dark:bg-gray-800 dark:text-gray-200",
+    style: {
+      borderRadius: "8px",
+      padding: "16px",
+      fontSize: "14px",
+    },
+  }}
+/>
+
           <FlashToast />
               <Footer />
             </div>
